@@ -22,8 +22,6 @@ menu "Frame buffer Devices"
 source "drivers/video/fbdev/Kconfig"
 endmenu
 
-source "drivers/video/backlight/Kconfig"
-
 config VGASTATE
        tristate
        default n
@@ -42,9 +40,7 @@ endif
 
 if FB || SGI_NEWPORT_CONSOLE
 	source "drivers/video/logo/Kconfig"
-
 endif
 
-source "drivers/video/sprdfb/Kconfig"
 
 endmenu

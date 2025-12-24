@@ -150,7 +150,9 @@ void __init ana_init_irq(void)
 	for (n = IRQ_ANA_INT_START; n < IRQ_ANA_INT_START + NR_ANA_IRQS; n++) {
 		irq_set_chip_and_handler(n, &sprd_muxed_ana_chip,
 					 handle_level_irq);
-		set_irq_flags(n, IRQF_VALID);
+        // FIXME _maynotwork_
+        set_
+		//set_irq_flags(n, IRQF_VALID);
 	}
 	setup_irq(IRQ_ANA_INT, &__adie_mux_irq);
 
@@ -180,7 +182,8 @@ static int adie_irq_domain_map(struct irq_domain *h, unsigned int virq,
 	virq_table[hw-ADIE_SUB_IRQ_START] = virq;
 	irq_set_chip_and_handler(virq, &sprd_muxed_ana_chip,
 			handle_level_irq);
-	set_irq_flags(virq, IRQF_VALID);
+	// FIXME _maynotwork_
+    //set_irq_flags(virq, IRQF_VALID);
 
 	return 0;
 }

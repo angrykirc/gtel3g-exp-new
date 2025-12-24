@@ -252,9 +252,10 @@ void __init sci_init_irq(void)
 		irqchip_init();
 	}
 #endif
-	gic_arch_extn.irq_mask = __irq_mask;
-	gic_arch_extn.irq_unmask = __irq_unmask;
-	gic_arch_extn.irq_set_wake = __set_wake;
+    // FIXME _maynotwork_
+    //gic_arch_extn.irq_mask = __irq_mask;
+    //gic_arch_extn.irq_unmask = __irq_unmask;
+    //gic_arch_extn.irq_set_wake = __set_wake;
 
 
 	/*disable legacy interrupt*/
