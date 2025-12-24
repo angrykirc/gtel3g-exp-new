@@ -215,6 +215,23 @@ config USB_F_PRINTER
 config USB_F_TCM
 	tristate
 
+config USB_GADGET_SPRD_DWC
+	boolean "SPREADTRUM USB2.0 Controller"
+	help
+	   Spreadtrum's usb controller is an integrated high speed
+	   USB 2.0 device controller(with dwc core).
+
+	   Say "y" to link the driver statically, or "m" to build a
+	   dynamically linked module called "dwc_otg" and force all
+	   gadget drivers to also be dynamically linked.
+
+config USB_SPRD_DWC
+	tristate
+	depends on USB_GADGET_SPRD_DWC
+	default USB_GADGET
+	select USB_GADGET_SELECTED
+	select USB_GADGET_DUALSPEED
+
 # this first set of drivers all depend on bulk-capable hardware.
 
 config USB_CONFIGFS
