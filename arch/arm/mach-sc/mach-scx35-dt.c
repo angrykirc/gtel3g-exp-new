@@ -22,7 +22,7 @@
 #include <asm/mach-types.h>
 #include <linux/irqchip/arm-gic.h>
 #include <asm/hardware/cache-l2x0.h>
-#include <asm/localtimer.h>
+//#include <asm/localtimer.h>
 #include <linux/of_platform.h>
 #include <linux/clocksource.h>
 #include <linux/clk-provider.h>

@@ -24,10 +24,10 @@
 #include <linux/clocksource.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
-#include <asm/timex.h>
 
 #include <linux/sched_clock.h>
 //#include <asm/localtimer.h>
+#include <mach/timex.h>
 #include <asm/mach/time.h>
 
 #include <mach/hardware.h>
@@ -136,38 +136,85 @@ static int __gptimer_set_next_event(unsigned long cycles,
 	__gptimer_ctl(cpu, EVENT_TIMER, TIMER_DISABLE, ONETIME_MODE);
 	__raw_writel(cycles, TIMER_LOAD(cpu, EVENT_TIMER));
 	__gptimer_ctl(cpu, EVENT_TIMER, TIMER_ENABLE, ONETIME_MODE);
-	return 0;
+    return 0;
 }
 
-static void __gptimer_set_mode(enum clock_event_mode mode,
-			       struct clock_event_device *c)
+static int __gptimer_set_state_periodic(struct clock_event_device *c)
 {
-	unsigned int saved;
 	int cpu = smp_processor_id();
 
-	switch (mode) {
-	case CLOCK_EVT_STATE_PERIODIC:
-		__gptimer_ctl(cpu, EVENT_TIMER, TIMER_DISABLE, PERIOD_MODE);
-		__raw_writel(LATCH, TIMER_LOAD(cpu, EVENT_TIMER));
-		__gptimer_ctl(cpu, EVENT_TIMER, TIMER_ENABLE, PERIOD_MODE);
-		__raw_writel(TIMER_INT_EN, TIMER_INT(cpu, EVENT_TIMER));
-		break;
-	case CLOCK_EVT_STATE_ONESHOT:
-		__raw_writel(LATCH, TIMER_LOAD(cpu, EVENT_TIMER));
-		__gptimer_ctl(cpu, EVENT_TIMER, TIMER_ENABLE, ONETIME_MODE);
-		__raw_writel(TIMER_INT_EN, TIMER_INT(cpu, EVENT_TIMER));
-		break;
-	case CLOCK_EVT_STATE_SHUTDOWN:
-	case CLOCK_EVT_STATE_ONESHOT_STOPPED:
-		__raw_writel(TIMER_INT_CLR, TIMER_INT(cpu, EVENT_TIMER));
-		saved = __raw_readl(TIMER_CTL(cpu, EVENT_TIMER)) & PERIOD_MODE;
-		__gptimer_ctl(cpu, EVENT_TIMER, TIMER_DISABLE, saved);
-		break;
-	/*case CLOCK_EVT_MODE_RESUME:
-		saved = __raw_readl(TIMER_CTL(cpu, EVENT_TIMER)) & PERIOD_MODE;
-		__gptimer_ctl(cpu, EVENT_TIMER, TIMER_ENABLE, saved);
-		break;*/
-	}
+    __gptimer_ctl(cpu, EVENT_TIMER, TIMER_DISABLE, PERIOD_MODE);
+    __raw_writel(LATCH, TIMER_LOAD(cpu, EVENT_TIMER));
+    __gptimer_ctl(cpu, EVENT_TIMER, TIMER_ENABLE, PERIOD_MODE);
+    __raw_writel(TIMER_INT_EN, TIMER_INT(cpu, EVENT_TIMER));
+    return 0;
+}
+
+static int __gptimer_set_state_oneshot(struct clock_event_device *c)
+{
+	int cpu = smp_processor_id();
+    
+    __raw_writel(LATCH, TIMER_LOAD(cpu, EVENT_TIMER));
+    __gptimer_ctl(cpu, EVENT_TIMER, TIMER_ENABLE, ONETIME_MODE);
+    __raw_writel(TIMER_INT_EN, TIMER_INT(cpu, EVENT_TIMER));
+    return 0;
+}
+
+static int __gptimer_set_state_shutdown(struct clock_event_device *c)
+{
+	int cpu = smp_processor_id();
+    unsigned int saved;
+    
+    __raw_writel(TIMER_INT_CLR, TIMER_INT(cpu, EVENT_TIMER));
+    saved = __raw_readl(TIMER_CTL(cpu, EVENT_TIMER)) & PERIOD_MODE;
+    __gptimer_ctl(cpu, EVENT_TIMER, TIMER_DISABLE, saved);
+    return 0;
+}
+
+static int __gptimer_tick_resume(struct clock_event_device *c)
+{
+	int cpu = smp_processor_id();
+    unsigned int saved;
+
+    saved = __raw_readl(TIMER_CTL(cpu, EVENT_TIMER)) & PERIOD_MODE;
+    __gptimer_ctl(cpu, EVENT_TIMER, TIMER_ENABLE, saved);
+    return 0;
+}
+
+static int __bctimer_set_state_periodic(struct clock_event_device *c)
+{
+    __gptimer_ctl(BC_CPU, BC_TIMER, TIMER_DISABLE, PERIOD_MODE);
+    __raw_writel(LATCH, TIMER_LOAD(BC_CPU, BC_TIMER));
+    __gptimer_ctl(BC_CPU, BC_TIMER, TIMER_ENABLE, PERIOD_MODE);
+    __raw_writel(TIMER_INT_EN, TIMER_INT(BC_CPU, BC_TIMER));
+    return 0;
+}
+
+static int __bctimer_set_state_oneshot(struct clock_event_device *c)
+{
+    __raw_writel(LATCH, TIMER_LOAD(BC_CPU, BC_TIMER));
+    __gptimer_ctl(BC_CPU, BC_TIMER, TIMER_ENABLE, ONETIME_MODE);
+    __raw_writel(TIMER_INT_EN, TIMER_INT(BC_CPU, BC_TIMER));
+    return 0;
+}
+
+static int __bctimer_set_state_shutdown(struct clock_event_device *c)
+{
+    unsigned int saved;
+
+    __raw_writel(TIMER_INT_CLR, TIMER_INT(BC_CPU, BC_TIMER));
+    saved = __raw_readl(TIMER_CTL(BC_CPU, BC_TIMER)) & PERIOD_MODE;
+    __gptimer_ctl(BC_CPU, BC_TIMER, TIMER_DISABLE, saved);
+    return 0;
+}
+
+static int __bctimer_tick_resume(struct clock_event_device *c)
+{
+    unsigned int saved;
+
+    saved = __raw_readl(TIMER_CTL(BC_CPU, BC_TIMER)) & PERIOD_MODE;
+    __gptimer_ctl(BC_CPU, BC_TIMER, TIMER_ENABLE, saved);
+    return 0;
 }
 
 static int __bctimer_set_next_event(unsigned long cycles,
@@ -177,37 +224,7 @@ static int __bctimer_set_next_event(unsigned long cycles,
 	__gptimer_ctl(BC_CPU, BC_TIMER, TIMER_DISABLE, ONETIME_MODE);
 	__raw_writel(cycles, TIMER_LOAD(BC_CPU, BC_TIMER));
 	__gptimer_ctl(BC_CPU, BC_TIMER, TIMER_ENABLE, ONETIME_MODE);
-	return 0;
-}
-
-static void __bctimer_set_mode(enum clock_event_mode mode,
-			       struct clock_event_device *c)
-{
-	unsigned int saved;
-
-	switch (mode) {
-	case CLOCK_EVT_STATE_PERIODIC:
-		__gptimer_ctl(BC_CPU, BC_TIMER, TIMER_DISABLE, PERIOD_MODE);
-		__raw_writel(LATCH, TIMER_LOAD(BC_CPU, BC_TIMER));
-		__gptimer_ctl(BC_CPU, BC_TIMER, TIMER_ENABLE, PERIOD_MODE);
-		__raw_writel(TIMER_INT_EN, TIMER_INT(BC_CPU, BC_TIMER));
-		break;
-	case CLOCK_EVT_STATE_ONESHOT:
-		__raw_writel(LATCH, TIMER_LOAD(BC_CPU, BC_TIMER));
-		__gptimer_ctl(BC_CPU, BC_TIMER, TIMER_ENABLE, ONETIME_MODE);
-		__raw_writel(TIMER_INT_EN, TIMER_INT(BC_CPU, BC_TIMER));
-		break;
-	case CLOCK_EVT_STATE_SHUTDOWN:
-	case CLOCK_EVT_STATE_ONESHOT_STOPPED:
-		__raw_writel(TIMER_INT_CLR, TIMER_INT(BC_CPU, BC_TIMER));
-		saved = __raw_readl(TIMER_CTL(BC_CPU, BC_TIMER)) & PERIOD_MODE;
-		__gptimer_ctl(BC_CPU, BC_TIMER, TIMER_DISABLE, saved);
-		break;
-	/*case CLOCK_EVT_MODE_RESUME:
-		saved = __raw_readl(TIMER_CTL(BC_CPU, BC_TIMER)) & PERIOD_MODE;
-		__gptimer_ctl(BC_CPU, BC_TIMER, TIMER_ENABLE, saved);
-		break;*/
-	}
+    return 0;
 }
 
 static struct clock_event_device bctimer_event = {
@@ -215,7 +232,11 @@ static struct clock_event_device bctimer_event = {
 	.shift = 32,
 	.rating = 150,
 	.set_next_event = __bctimer_set_next_event,
-	.set_mode = __bctimer_set_mode,
+	.set_state_periodic = __bctimer_set_state_periodic,
+	.set_state_oneshot = __bctimer_set_state_oneshot,
+	.set_state_oneshot_stopped = __bctimer_set_state_shutdown,
+	.set_state_shutdown = __bctimer_set_state_shutdown,
+    .tick_resume = __bctimer_tick_resume
 };
 
 static irqreturn_t __gptimer_interrupt(int irq, void *dev_id);
@@ -229,7 +250,11 @@ static int __cpuinit sprd_local_timer_setup(struct clock_event_device *evt)
 	evt->name = "local_timer";
 	evt->features = CLOCK_EVT_FEAT_ONESHOT;
 	evt->rating = 200;
-	evt->set_mode = __gptimer_set_mode;
+	evt->set_state_periodic = __gptimer_set_state_periodic;
+	evt->set_state_oneshot = __gptimer_set_state_oneshot;
+	evt->set_state_oneshot_stopped = __gptimer_set_state_shutdown;
+	evt->set_state_shutdown = __gptimer_set_state_shutdown;
+	evt->tick_resume = __gptimer_tick_resume;
 	evt->set_next_event = __gptimer_set_next_event;
 	evt->shift = 32;
 	evt->mult = div_sc(32768, NSEC_PER_SEC, evt->shift);
@@ -289,7 +314,7 @@ static irqreturn_t __bctimer_interrupt(int irq, void *dev_id)
 
 static struct irqaction bctimer_irq = {
 	.name = "bctimer",
-	.flags = IRQF_DISABLED | IRQF_TIMER | IRQF_IRQPOLL,
+	.flags = IRQF_TIMER | IRQF_IRQPOLL,
 	.handler = __bctimer_interrupt,
 	.dev_id = &bctimer_event,
 };
@@ -332,7 +357,7 @@ void __gptimer_clocksource_suspend(struct clocksource *cs)
 }
 
 static DEFINE_SPINLOCK(clocksource_read_lock);
-cycle_t __gptimer_clocksource_read(struct clocksource *cs)
+u64 __gptimer_clocksource_read(struct clocksource *cs)
 {
 	return ~readl_relaxed(TIMER_CNT_RD(e_cpu, SOURCE_TIMER));
 }
@@ -371,7 +396,7 @@ static void __syscnt_clocksource_init(const char *name, unsigned long hz)
 }
 
 /* ****************************************************************** */
-static u32 notrace __update_sched_clock(void)
+static u64 notrace __update_sched_clock(void)
 {
 	return ~(readl_relaxed(TIMER_CNT_RD(0, SOURCE_TIMER)));
 }
@@ -421,18 +446,18 @@ void __init sci_enable_timer_early(void)
 #endif
 }
 
-static struct timespec persistent_ts;
+static struct timespec64 persistent_ts;
 static u64 persistent_ms, last_persistent_ms;
-static void sprd_read_persistent_clock(struct timespec *ts)
+static void sprd_read_persistent_clock(struct timespec64 *ts)
 {
 	u64 delta;
-	struct timespec *tsp = &persistent_ts;
+	struct timespec64 *tsp = &persistent_ts;
 
 	last_persistent_ms = persistent_ms;
 	persistent_ms = get_sys_cnt();
 	delta = persistent_ms - last_persistent_ms;
 
-	timespec_add_ns(tsp, delta * NSEC_PER_MSEC);
+	timespec64_add_ns(tsp, delta * NSEC_PER_MSEC);
 	*ts = *tsp;
 }
 
