@@ -95,3 +95,9 @@ obj-$(CONFIG_SERIAL_MCTRL_GPIO)	+= serial_mctrl_gpio.o
 
 obj-$(CONFIG_SERIAL_KGDB_NMI) += kgdb_nmi.o
 obj-$(CONFIG_KGDB_SERIAL_CONSOLE) += kgdboc.o
+
+ifeq ($(CONFIG_OF),y)
+obj-$(CONFIG_SERIAL_SPRD_UART) += serial_sprd_dt.o
+else
+obj-$(CONFIG_SERIAL_SPRD_UART) += serial_sprd.o
+endif
