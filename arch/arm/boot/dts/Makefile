@@ -1207,3 +1207,17 @@ dtb-$(CONFIG_ARCH_ASPEED) += \
 	aspeed-bmc-opp-zaius.dtb \
 	aspeed-bmc-portwell-neptune.dtb \
 	aspeed-bmc-quanta-q71l.dtb
+
+
+dtb-$(CONFIG_MACH_GTEL3G) += sprd-scx35_gtel3g_rev00.dtb \
+	sprd-scx35_gtel3g_rev01.dtb \
+	sprd-scx35_gtel3g_rev02.dtb \
+	sprd-scx35_gtel3g_rev03.dtb \
+	sprd-scx35_gtel3g_rev04.dtb \
+	sprd-scx35_gtel3g_rev05.dtb \
+	sprd-scx35_gtel3g_rev06.dtb \
+	sprd-scx35_gtel3g_rev07.dtb \
+	sprd-scx35_gtel3g_rev08.dtb \
+	sprd-scx35_gtel3g_rev09.dtb \
+	sprd-scx35_gtel3g_rev10.dtb \
+	sprd-scx35_gtel3g_rev11.dtb
