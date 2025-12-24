@@ -14,7 +14,7 @@
 #include <linux/suspend.h>
 #include <linux/errno.h>
 #include <linux/delay.h>
-#include <linux/wakelock.h>
+//#include <linux/wakelock.h>
 #include <linux/io.h>
 #include <linux/kthread.h>
 #include <linux/battery/vbat_check.h>
@@ -30,7 +30,6 @@
 #include <mach/sci.h>
 #include "emc_repower.h"
 #include <linux/clockchips.h>
-#include <linux/wakelock.h>
 #include <mach/adi.h>
 #include <mach/arch_misc.h>
 #if defined(CONFIG_SPRD_DEBUG)

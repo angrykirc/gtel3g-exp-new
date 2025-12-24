@@ -22,7 +22,7 @@
 #include <mach/hardware.h>
 #include <mach/sci_glb_regs.h>
 #include <mach/cpuidle.h>
-
+#include <linux/tick.h>
 
 /*#define SC_IDLE_DEBUG 1*/
 extern u32 emc_clk_get(void);
@@ -323,7 +323,7 @@ static int sc_enter_idle(struct cpuidle_device *dev,
 		break;
 	case CORE_PD:
 		if(cpu_id != 0){
-			clockevents_notify(CLOCK_EVT_NOTIFY_BROADCAST_ENTER, &cpu_id);
+            tick_broadcast_enter();
 			/*
 			 * TODO:
 			 *    set irq affinity to cpu0,  so irq can be handled on cpu0
@@ -334,7 +334,7 @@ static int sc_enter_idle(struct cpuidle_device *dev,
 			/*
 			 gic_affinity_restore(cpu_id);
 			 */
-			clockevents_notify(CLOCK_EVT_NOTIFY_BROADCAST_EXIT, &cpu_id);
+			tick_broadcast_exit();
 		}else{
 			pr_debug("sc_enter_idle go into core_pd state\n");
 			sc_cpuidle_light_sleep_en(cpu_id);
@@ -394,7 +394,7 @@ static inline void sc_fill_cstate(struct cpuidle_driver *drv, struct cpuidle_dev
 	array state->desc of size 32 bytes might leave the destination string unterminated.
 	*/
 	state->desc[CPUIDLE_DESC_LEN-1] = '\0';
-	state->flags		= CPUIDLE_FLAG_TIME_VALID;
+	state->flags		= 0;//CPUIDLE_FLAG_TIME_VALID;
 	state->exit_latency	= cpuidle_params_table[idx].exit_latency;
 	/*TODO*/
 	/*state->power_usage = cpuidle_params_table[idx].power_usage;*/
@@ -416,7 +416,7 @@ static int sc_cpuidle_register_device(struct cpuidle_driver *drv, unsigned int c
 	for(state_idx=0; state_idx<SC_CPUIDLE_STATE_NUM; state_idx++){
 		sc_fill_cstate(drv, dev, state_idx);
 	}
-	dev->state_count = state_idx;
+	//dev->state_count = state_idx;
 
 	if (cpuidle_register_device(dev)) {
 		pr_err("CPU%u: failed to register idle device\n", cpu);
