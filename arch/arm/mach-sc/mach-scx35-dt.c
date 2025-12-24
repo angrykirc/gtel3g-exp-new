@@ -230,12 +230,12 @@ static void __init sprd_init_time(void)
 	if(of_have_populated_dt()){
 		sc8830_pmu_init();
 		of_clk_init(NULL);
-		clocksource_of_init();
 	}else{
 		sci_clock_init();
 		sci_enable_timer_early();
 		sci_timer_init();
 	}
+    timer_probe();
 }
 static const char *sprd_boards_compat[] __initdata = {
 	"sprd,scx35",

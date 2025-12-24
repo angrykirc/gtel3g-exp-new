@@ -370,11 +370,11 @@ static void sprd_real_set_cpufreq(struct cpufreq_policy *policy, unsigned int ne
 	global_freqs.cpu = policy->cpu;
 	global_freqs.new = new_speed;
 
-	cpufreq_notify_transition(policy, &global_freqs, CPUFREQ_PRECHANGE);
+	//cpufreq_notify_transition(policy, &global_freqs, CPUFREQ_PRECHANGE);
 
 	sprd_raw_set_cpufreq(policy->cpu, &global_freqs, index);
 
-	cpufreq_notify_transition(policy, &global_freqs, CPUFREQ_POSTCHANGE);
+	//cpufreq_notify_transition(policy, &global_freqs, CPUFREQ_POSTCHANGE);
 
 	global_freqs.old = global_freqs.new;
 
@@ -387,10 +387,9 @@ static void sprd_find_real_index(unsigned int new_speed, int *index)
 	int i;
 	struct cpufreq_frequency_table *pfreq = sprd_cpufreq_conf->freq_tbl;
 
-	*index = pfreq[0].index;
 	for (i = 0; (pfreq[i].frequency != CPUFREQ_TABLE_END); i++) {
 		if (new_speed == pfreq[i].frequency) {
-			*index = pfreq[i].index;
+			*index = i;
 			break;
 		}
 	}
@@ -475,13 +474,12 @@ static int sprd_cpufreq_target(struct cpufreq_policy *policy,
 		pr_err("invalid target_freq: %d min_freq %d max_freq %d\n", target_freq,min_freq,max_freq);
 		return -EINVAL;
 	}
-	table = cpufreq_frequency_get_table(policy->cpu);
+	table = policy->freq_table;
 
-	if (cpufreq_frequency_table_target(policy, table,
-					target_freq, relation, &index)) {
+	if (cpufreq_frequency_table_target(policy, target_freq, relation)) {
 		pr_err("invalid target_freq: %d\n", target_freq);
 		return -EINVAL;
-	}
+    }
 
 	pr_debug("CPU_%d target %d relation %d (%d-%d) selected %d\n",
 			policy->cpu, target_freq, relation,
@@ -566,7 +564,9 @@ static int sprd_cpufreq_init(struct cpufreq_policy *policy)
 	policy->cpuinfo.transition_latency = TRANSITION_LATENCY;
 	policy->shared_type = CPUFREQ_SHARED_TYPE_ALL;
 
-	cpufreq_frequency_table_get_attr(sprd_cpufreq_conf->freq_tbl, policy->cpu);
+	//cpufreq_frequency_table_get_attr(sprd_cpufreq_conf->freq_tbl, policy->cpu);
+    // FIXME _maynotwork_
+	//policy->freq_table = sprd_cpufreq_conf->freq_tbl;
 
 	percpu_target[policy->cpu] = policy->cur;
 
@@ -602,7 +602,7 @@ static struct cpufreq_driver sprd_cpufreq_driver = {
 	.name		= "sprd",
 	.attr		= sprd_cpufreq_attr,
 #if defined(CONFIG_ARCH_SCX35)
-	.flags		= CPUFREQ_SHARED
+	.flags		= 0//CPUFREQ_SHARED
 #endif
 };
 
@@ -636,7 +636,7 @@ static ssize_t cpufreq_min_limit_store(struct device *dev, struct device_attribu
 	int value;
 	unsigned long irq_flags;
 
-	ret = strict_strtoul(buf,16,(long unsigned int *)&value);
+	ret = kstrtoul(buf,16,(long unsigned int *)&value);
 
 	spin_lock_irqsave(&cpufreq_state_lock, irq_flags);
 	/*
@@ -663,7 +663,7 @@ static ssize_t cpufreq_max_limit_store(struct device *dev, struct device_attribu
 	int value;
 	unsigned long irq_flags;
 
-	ret = strict_strtoul(buf,16,(long unsigned int *)&value);
+	ret = kstrtoul(buf,16,(long unsigned int *)&value);
 
 	spin_lock_irqsave(&cpufreq_state_lock, irq_flags);
 
@@ -693,7 +693,7 @@ static ssize_t dvfs_score_store(struct device *dev, struct device_attribute *att
 	int value;
 	unsigned long irq_flags;
 
-	ret = strict_strtoul(buf,16,(long unsigned int *)&value);
+	ret = kstrtoul(buf,16,(long unsigned int *)&value);
 
 	printk(KERN_ERR"dvfs_score_input %x\n",value);
 
@@ -736,7 +736,7 @@ static ssize_t dvfs_unplug_store(struct device *dev, struct device_attribute *at
 	int value;
 	unsigned long irq_flags;
 
-	ret = strict_strtoul(buf,16,(long unsigned int *)&value);
+	ret = kstrtoul(buf,16,(long unsigned int *)&value);
 
 	printk(KERN_ERR"dvfs_score_input %x\n",value);
 
@@ -773,7 +773,7 @@ static ssize_t dvfs_plug_store(struct device *dev, struct device_attribute *attr
 	int value;
 	unsigned long irq_flags;
 
-	ret = strict_strtoul(buf,16,(long unsigned int *)&value);
+	ret = kstrtoul(buf,16,(long unsigned int *)&value);
 
 	printk(KERN_ERR"dvfs_plug_select %x\n",value);
 

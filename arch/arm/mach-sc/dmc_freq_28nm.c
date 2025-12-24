@@ -8,13 +8,13 @@
 #include <linux/io.h>
 #include <linux/debugfs.h>
 #include <linux/delay.h>
-#include <linux/wakelock.h>
+//#include <linux/wakelock.h>
 #include <linux/module.h>
 #include <linux/kthread.h>
 #include <mach/common.h>
 #include <mach/hardware.h>
 #include <mach/sci.h>
-#include <linux/earlysuspend.h>
+//#include <linux/earlysuspend.h>
 #include <mach/sci_glb_regs.h>
 #include <linux/random.h>
 #include <asm/hardware/cache-l2x0.h>
