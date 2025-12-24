@@ -236,6 +236,17 @@ struct usb_ep {
 
 /*-------------------------------------------------------------------------*/
 
+/**
+* for otg host GPIO use
+*/
+ struct sprd_usb_platform_data {
+        int gpio_boost;
+	int gpio_chgdet;
+	int gpio_otgdet;
+	int gpio_num;
+	int ldo_gpio;
+};
+
 #if IS_ENABLED(CONFIG_USB_GADGET)
 void usb_ep_set_maxpacket_limit(struct usb_ep *ep, unsigned maxpacket_limit);
 int usb_ep_enable(struct usb_ep *ep);

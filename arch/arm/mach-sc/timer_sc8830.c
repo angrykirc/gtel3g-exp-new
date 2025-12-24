@@ -24,9 +24,10 @@
 #include <linux/clocksource.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
+#include <asm/timex.h>
 
-#include <asm/sched_clock.h>
-#include <asm/localtimer.h>
+#include <linux/sched_clock.h>
+//#include <asm/localtimer.h>
 #include <asm/mach/time.h>
 
 #include <mach/hardware.h>
@@ -145,27 +146,27 @@ static void __gptimer_set_mode(enum clock_event_mode mode,
 	int cpu = smp_processor_id();
 
 	switch (mode) {
-	case CLOCK_EVT_MODE_PERIODIC:
+	case CLOCK_EVT_STATE_PERIODIC:
 		__gptimer_ctl(cpu, EVENT_TIMER, TIMER_DISABLE, PERIOD_MODE);
 		__raw_writel(LATCH, TIMER_LOAD(cpu, EVENT_TIMER));
 		__gptimer_ctl(cpu, EVENT_TIMER, TIMER_ENABLE, PERIOD_MODE);
 		__raw_writel(TIMER_INT_EN, TIMER_INT(cpu, EVENT_TIMER));
 		break;
-	case CLOCK_EVT_MODE_ONESHOT:
+	case CLOCK_EVT_STATE_ONESHOT:
 		__raw_writel(LATCH, TIMER_LOAD(cpu, EVENT_TIMER));
 		__gptimer_ctl(cpu, EVENT_TIMER, TIMER_ENABLE, ONETIME_MODE);
 		__raw_writel(TIMER_INT_EN, TIMER_INT(cpu, EVENT_TIMER));
 		break;
-	case CLOCK_EVT_MODE_SHUTDOWN:
-	case CLOCK_EVT_MODE_UNUSED:
+	case CLOCK_EVT_STATE_SHUTDOWN:
+	case CLOCK_EVT_STATE_ONESHOT_STOPPED:
 		__raw_writel(TIMER_INT_CLR, TIMER_INT(cpu, EVENT_TIMER));
 		saved = __raw_readl(TIMER_CTL(cpu, EVENT_TIMER)) & PERIOD_MODE;
 		__gptimer_ctl(cpu, EVENT_TIMER, TIMER_DISABLE, saved);
 		break;
-	case CLOCK_EVT_MODE_RESUME:
+	/*case CLOCK_EVT_MODE_RESUME:
 		saved = __raw_readl(TIMER_CTL(cpu, EVENT_TIMER)) & PERIOD_MODE;
 		__gptimer_ctl(cpu, EVENT_TIMER, TIMER_ENABLE, saved);
-		break;
+		break;*/
 	}
 }
 
@@ -185,27 +186,27 @@ static void __bctimer_set_mode(enum clock_event_mode mode,
 	unsigned int saved;
 
 	switch (mode) {
-	case CLOCK_EVT_MODE_PERIODIC:
+	case CLOCK_EVT_STATE_PERIODIC:
 		__gptimer_ctl(BC_CPU, BC_TIMER, TIMER_DISABLE, PERIOD_MODE);
 		__raw_writel(LATCH, TIMER_LOAD(BC_CPU, BC_TIMER));
 		__gptimer_ctl(BC_CPU, BC_TIMER, TIMER_ENABLE, PERIOD_MODE);
 		__raw_writel(TIMER_INT_EN, TIMER_INT(BC_CPU, BC_TIMER));
 		break;
-	case CLOCK_EVT_MODE_ONESHOT:
+	case CLOCK_EVT_STATE_ONESHOT:
 		__raw_writel(LATCH, TIMER_LOAD(BC_CPU, BC_TIMER));
 		__gptimer_ctl(BC_CPU, BC_TIMER, TIMER_ENABLE, ONETIME_MODE);
 		__raw_writel(TIMER_INT_EN, TIMER_INT(BC_CPU, BC_TIMER));
 		break;
-	case CLOCK_EVT_MODE_SHUTDOWN:
-	case CLOCK_EVT_MODE_UNUSED:
+	case CLOCK_EVT_STATE_SHUTDOWN:
+	case CLOCK_EVT_STATE_ONESHOT_STOPPED:
 		__raw_writel(TIMER_INT_CLR, TIMER_INT(BC_CPU, BC_TIMER));
 		saved = __raw_readl(TIMER_CTL(BC_CPU, BC_TIMER)) & PERIOD_MODE;
 		__gptimer_ctl(BC_CPU, BC_TIMER, TIMER_DISABLE, saved);
 		break;
-	case CLOCK_EVT_MODE_RESUME:
+	/*case CLOCK_EVT_MODE_RESUME:
 		saved = __raw_readl(TIMER_CTL(BC_CPU, BC_TIMER)) & PERIOD_MODE;
 		__gptimer_ctl(BC_CPU, BC_TIMER, TIMER_ENABLE, saved);
-		break;
+		break;*/
 	}
 }
 
@@ -245,7 +246,7 @@ static int __cpuinit sprd_local_timer_setup(struct clock_event_device *evt)
 static void sprd_local_timer_stop(struct clock_event_device *evt)
 {
 
-	evt->set_mode(CLOCK_EVT_MODE_UNUSED, evt);
+	evt->set_mode(CLOCK_EVT_STATE_ONESHOT_STOPPED, evt);
 }
 
 static struct local_timer_ops sprd_local_timer_ops __cpuinitdata = {
@@ -377,7 +378,7 @@ static u32 notrace __update_sched_clock(void)
 
 static void __init __sched_clock_init(unsigned long rate)
 {
-	setup_sched_clock(__update_sched_clock, 32, rate);
+	sched_clock_register(__update_sched_clock, 32, rate);
 }
 
 void __init sci_enable_timer_early(void)
@@ -457,7 +458,7 @@ void __init sci_timer_init(void)
 	__syscnt_clocksource_init("syscnt", 1000);
 	/* setup timer1 of aon timer as clockevent. */
 	sprd_gptimer_clockevent_init(BC_IRQ, "bctimer", 32768);
-	register_persistent_clock(NULL, sprd_read_persistent_clock);
+	register_persistent_clock(sprd_read_persistent_clock);
 
 	printk(KERN_INFO "sci_timer_init\n");
 }

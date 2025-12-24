@@ -139,7 +139,7 @@ static irqreturn_t sprd_muxed_ana_handler(int irq, void *dev_id)
 
 static struct irqaction __adie_mux_irq = {
 	.name		= "adie_mux",
-	.flags		= IRQF_DISABLED | IRQF_NO_SUSPEND,
+	.flags		= IRQF_NO_SUSPEND,
 	.handler	= sprd_muxed_ana_handler,
 };
 
@@ -151,7 +151,6 @@ void __init ana_init_irq(void)
 		irq_set_chip_and_handler(n, &sprd_muxed_ana_chip,
 					 handle_level_irq);
         // FIXME _maynotwork_
-        set_
 		//set_irq_flags(n, IRQF_VALID);
 	}
 	setup_irq(IRQ_ANA_INT, &__adie_mux_irq);

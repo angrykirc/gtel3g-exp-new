@@ -352,10 +352,7 @@ static int sprd_adc_remove(struct platform_device *pdev)
 
 	sprd_device_delete_attributes(adc_data->misc_dev.this_device, sprd_adc_attr, ARRAY_SIZE(sprd_adc_attr));
 
-	rc = misc_deregister(&adc_data->misc_dev);
-	if (rc) {
-		pr_err("%s failed to unregister misc device.\n", __func__);
-	}
+	misc_deregister(&adc_data->misc_dev);
 
 	kfree(adc_data);
 

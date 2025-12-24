@@ -246,7 +246,7 @@ static ssize_t pin_switch_dir_proc_write(struct file *file,
 	int ret = 0;
 	struct sci_pin_switch *p =
 	    (struct sci_pin_switch *)(PDE_DATA(file_inode(file)));
-	ret = kstrtol_from_user(buffer, count, 0, &val);
+	ret = kstrtol_from_user(buffer, count, 0, (long*) &val);
 	if (ret) {
 		pr_err("input err\n");
 		return -EINVAL;

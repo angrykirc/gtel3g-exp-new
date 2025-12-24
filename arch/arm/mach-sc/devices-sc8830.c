@@ -13,7 +13,7 @@
 
 #include <linux/kernel.h>
 #include <linux/platform_device.h>
-#include <linux/ion.h>
+//#include <linux/ion.h>
 #include <linux/input.h>
 #include <linux/mmc/sprd-sdhci.h>
 #include <linux/gpio.h>
@@ -25,7 +25,7 @@
 #include <linux/seth.h>
 #include <linux/stty.h>
 #include <sound/saudio.h>
-#include <asm/pmu.h>
+#include <linux/perf/arm_pmu.h>
 #include <mach/hardware.h>
 #include <mach/sci_glb_regs.h>
 #include <mach/irqs.h>
@@ -33,7 +33,7 @@
 #include <mach/board.h>
 #include <mach/gpio.h>
 #include <linux/pstore_ram.h>
-#include <linux/sprd_iommu.h>
+//#include <linux/sprd_iommu.h>
 #ifdef CONFIG_TS0710_MUX_ENABLE
 #include <linux/sprdmux.h>
 #endif
@@ -45,18 +45,18 @@
 #endif
 
 #include <linux/usb/gadget.h>
-#include <video/ion_sprd.h>
+//#include <video/ion_sprd.h>
 #ifdef CONFIG_SPRD_VETH
 #include <linux/sprd_veth.h>
 #endif
 #include "devices.h"
 #include <mach/modem_interface.h>
-#include <linux/sprd_thm.h>
+//#include <linux/sprd_thm.h>
 #include <linux/thermal.h>
 #include <linux/delay.h>
 #include <mach/sci.h>
 #include <mach/sci_glb_regs.h>
-#include <linux/sprd_cpu_cooling.h>
+//#include <linux/sprd_cpu_cooling.h>
 
 #ifndef CONFIG_OF
 struct modem_intf_platform_data modem_interface = {
@@ -641,7 +641,7 @@ struct platform_device sprd_keypad_device = {
 	.resource = sci_keypad_resources,
 };
 
-static struct resource sprd_thm_resources[] = {
+/*static struct resource sprd_thm_resources[] = {
     [0] = {
         .start = SPRD_THM_BASE,
         .end = SPRD_THM_BASE + SPRD_THM_SIZE - 1,
@@ -696,7 +696,7 @@ struct platform_device sprd_thm_device = {
 	.dev	= {
 		.platform_data	= &sprd_thm_data,
 	},
-};
+};*/
 
 #ifdef CONFIG_CPU_FREQ_GOV_SPRDEMAND
 static struct sprd_cpu_cooling_platform_data sprd_cpu_cooling_pdata = {
@@ -1049,9 +1049,9 @@ static struct resource sprd_sdio0_resources[] = {
 static struct sprd_sdhci_host_platdata sprd_sdio0_pdata = {
 	.caps = MMC_CAP_HW_RESET | MMC_CAP_4_BIT_DATA,
 #if defined(CONFIG_MACH_SC9620OPENPHONE) || defined(CONFIG_MACH_SC9620OPENPHONE_ZT)
-	.caps2 = MMC_CAP2_HC_ERASE_SZ | MMC_CAP2_CACHE_CTRL | MMC_CAP2_CD_ACTIVE_HIGH,
+	.caps2 = MMC_CAP2_CD_ACTIVE_HIGH,
 #else
-	.caps2 = MMC_CAP2_HC_ERASE_SZ | MMC_CAP2_CACHE_CTRL,
+	.caps2 = 0,
 #endif
 	.vdd_extmmc = "vddsd",
 #ifdef CONFIG_ARCH_SCX15
@@ -1291,7 +1291,7 @@ static struct resource sprd_emmc_resources[] = {
 
 static struct sprd_sdhci_host_platdata sprd_emmc_pdata = {
 	.caps = MMC_CAP_HW_RESET | MMC_CAP_NONREMOVABLE | MMC_CAP_8_BIT_DATA,// | MMC_CAP_1_8V_DDR,
-	.caps2 = MMC_CAP2_HC_ERASE_SZ | MMC_CAP2_CACHE_CTRL,
+	.caps2 = 0,
 	.vdd_extmmc = "vddemmcio",
 	.clk_name = "clk_emmc",
 #ifdef CONFIG_ARCH_SCX15

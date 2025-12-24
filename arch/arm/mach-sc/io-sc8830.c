@@ -37,7 +37,7 @@
 	.virtual = SPRD_##name##_BASE, \
 	.pfn = __phys_to_pfn(SPRD_##name##_PHYS), \
 	.length = SPRD_##name##_SIZE, \
-	.type = MT_MEMORY, \
+	.type = MT_MEMORY_RW, \
 	}
 
 #define ARCH_SC_SOC_IO_MAP
