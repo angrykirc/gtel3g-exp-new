@@ -646,4 +646,25 @@ config CHARGER_CROS_USBPD
 	  what is connected to USB PD ports from the EC and converts
 	  that into power_supply properties.
 
+
+config SPRD_2713_POWER
+       tristate "Spreadtrum sp2713 SoC's power supply& mesurement controller"
+       help
+        Say Y to include support for Spreadtrum SoC's power supply and
+        mesurement controller driver
+
+config SPRD_EXT_IC_POWER
+       tristate "Spreadtrum EXT_IC SoC's power supply& mesurement controller"
+       help
+        Say Y to include support for Spreadtrum SoC's power supply and
+        mesurement controller driver
+
+config BATTERY_SAMSUNG
+	tristate "samsung battery driver"
+	help
+	 Say Y to include support for samsung battery driver
+	 This battery driver integrated all battery-related functions
+	 To see battery-related functions,
+	 refer to sec_charging_common.h
+
 endif # POWER_SUPPLY

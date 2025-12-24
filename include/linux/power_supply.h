@@ -84,6 +84,15 @@ enum {
 	POWER_SUPPLY_SCOPE_DEVICE,
 };
 
+#if defined(CONFIG_FUELGAUGE_88PM822) || defined(CONFIG_FUELGAUGE_88PM800) \
+        || defined(CONFIG_FUELGAUGE_SPRD4SAMSUNG27X3)
+enum {
+        POWER_SUPPLY_PWR_RDY_FALSE = 0,
+        POWER_SUPPLY_PWR_RDY_TRUE,
+        POWER_SUPPLY_PWR_RDY_UNKNOWN,
+};
+#endif
+
 enum power_supply_property {
 	/* Properties of type `int' */
 	POWER_SUPPLY_PROP_STATUS = 0,

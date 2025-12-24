@@ -13,3 +13,8 @@ obj-$(CONFIG_VIDEOMODE_HELPERS) += display_timing.o videomode.o
 ifeq ($(CONFIG_OF),y)
 obj-$(CONFIG_VIDEOMODE_HELPERS) += of_display_timing.o of_videomode.o
 endif
+
+obj-$(CONFIG_FB_SC8825)           += sprdfb/
+obj-$(CONFIG_FB_SCX35)            += sprdfb/
+obj-$(CONFIG_FB_SCX30G)           += sprdfb/
+obj-$(CONFIG_FB_SCX15)            += sprdfb/
