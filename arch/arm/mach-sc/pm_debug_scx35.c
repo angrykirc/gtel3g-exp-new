@@ -461,9 +461,6 @@ void print_statisic(void)
 		printk("###wake up form %s : %08x\n",  sleep_mode_str[sleep_mode],  sprd_irqs_sts[1]);
 	}
 }
-#ifdef PM_PRINT_ENABLE
-static struct wakelock messages_wakelock;
-#endif
 
 #define PM_PRINT_ENABLE
 static void print_debug_info(void)
@@ -653,13 +650,11 @@ static void print_debug_info(void)
 
 static int print_thread(void * data)
 {
+    unsigned long flags;
 	while(1){
-		wake_lock(&messages_wakelock);
 		if (print_thread_enable)
 			print_debug_info();
-		has_wake_lock(WAKE_LOCK_SUSPEND);
 		msleep(100);
-		wake_unlock(&messages_wakelock);
 		set_current_state(TASK_INTERRUPTIBLE);
 		schedule_timeout(print_thread_interval * HZ);
 	}
@@ -737,8 +732,6 @@ void pm_debug_init(void)
 		BUG();
 	}
 #ifdef PM_PRINT_ENABLE
-	wake_lock_init(&messages_wakelock, WAKE_LOCK_SUSPEND,
-			"pm_message_wakelock");
 	task = kthread_create(print_thread, NULL, "pm_print");
 	if (task == 0) {
 		printk("Can't crate power manager print thread!\n");

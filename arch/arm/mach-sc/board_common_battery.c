@@ -13,7 +13,7 @@
 
 #include <linux/kernel.h>
 #include <linux/platform_device.h>
-#include <linux/ion.h>
+//#include <linux/ion.h>
 #include <linux/sprd_battery_common.h>
 #include <mach/gpio.h>
 #include <mach/hardware.h>

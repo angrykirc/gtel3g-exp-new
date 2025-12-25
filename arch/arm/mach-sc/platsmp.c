@@ -37,7 +37,7 @@
 extern void sci_secondary_startup(void);
 
 #if (defined CONFIG_ARCH_SC8825)
-static int __cpuinit boot_secondary_cpus(int cpu_id, u32 paddr)
+static int boot_secondary_cpus(int cpu_id, u32 paddr)
 {
 	if (cpu_id != 1)
 		return -1;
@@ -140,7 +140,7 @@ int powerdown_cpus(int cpu)
 	return 0;
 }
 
-static int __cpuinit boot_secondary_cpus(int cpu_id, u32 paddr)
+static int boot_secondary_cpus(int cpu_id, u32 paddr)
 {
 	if (cpu_id < 1 || cpu_id > 3)
 		return -1;
@@ -165,7 +165,7 @@ extern volatile int pen_release;
  * observers, irrespective of whether they're taking part in coherency
  * or not.  This is necessary for the hotplug code to work reliably.
  */
-static void __cpuinit write_pen_release(int val)
+static void write_pen_release(int val)
 {
 	pen_release = val;
 	smp_wmb();
@@ -211,7 +211,7 @@ unsigned int g_sprd_up_flag[4] =
 atomic_t boot_lock_cnt  = ATOMIC_INIT(0);
 atomic_t boot_unlock_cnt = ATOMIC_INIT(0);
 
-void __cpuinit sprd_secondary_init(unsigned int cpu)
+void sprd_secondary_init(unsigned int cpu)
 {
 	/*
 	 * if any interrupts are already enabled for the primary
@@ -240,7 +240,7 @@ void __cpuinit sprd_secondary_init(unsigned int cpu)
 
 
 
-int __cpuinit sprd_boot_secondary(unsigned int cpu, struct task_struct *idle)
+int sprd_boot_secondary(unsigned int cpu, struct task_struct *idle)
 {
 	unsigned long timeout;
 	int ret;
@@ -364,7 +364,7 @@ void __init sprd_smp_prepare_cpus(unsigned int max_cpus)
 }
 
 extern int sprd_cpu_kill(unsigned int cpu);
-extern int sprd_cpu_die(unsigned int cpu);
+extern void sprd_cpu_die(unsigned int cpu);
 extern int sprd_cpu_disable(unsigned int cpu);
 
 struct smp_operations sprd_smp_ops __initdata = {

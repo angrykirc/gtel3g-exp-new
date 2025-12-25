@@ -12,7 +12,7 @@
 #include <linux/linkage.h>
 #include <linux/init.h>
 
-	__CPUINIT
+//	__CPUINIT
 
 /*
  * sci smp specific entry point for secondary CPUs.
