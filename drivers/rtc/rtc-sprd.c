@@ -24,7 +24,7 @@
 #include <mach/regulator.h>
 #include <linux/regulator/consumer.h>
 #include <linux/clk.h>
-#include <linux/wakelock.h>
+//#include <linux/wakelock.h>
 #include <linux/of.h>
 
 #ifdef CONFIG_ARCH_SC8825
@@ -129,8 +129,8 @@ struct sprd_rtc_data{
 	struct regulator *regulator;
 };
 static struct sprd_rtc_data *rtc_data;
-static struct wake_lock rtc_wake_lock;
-static struct wake_lock rtc_interrupt_wake_lock;
+//static struct wake_lock rtc_wake_lock;
+//static struct wake_lock rtc_interrupt_wake_lock;
 static DEFINE_MUTEX(set_alarm_sec_lock);
 
 static inline unsigned get_sec(void)
@@ -402,7 +402,7 @@ static int sprd_rtc_set_alarm(struct device *dev,
 		sci_adi_raw_write(ANA_RTC_INT_EN, temp);
 
 		secs = secs - secs_start_year_to_1970;
-		wake_lock(&rtc_wake_lock);
+		//wake_lock(&rtc_wake_lock);
 		n = 2;
 		while(sprd_rtc_set_alarm_sec(secs)!=0&&(n--)>0);
 		do {
@@ -416,7 +416,7 @@ static int sprd_rtc_set_alarm(struct device *dev,
 		}while(read_secs != secs && i < SPRD_RTC_SET_MAX);
 		/*unlock the rtc alrm int*/
 		sci_adi_raw_write(ANA_RTC_SPG_UPD, SPRD_RTC_UNLOCK);
-		wake_unlock(&rtc_wake_lock);
+		//wake_unlock(&rtc_wake_lock);
 	}else{
 		sci_adi_clr(ANA_RTC_INT_EN, RTC_ALARM_BIT);
 		sci_adi_raw_write(ANA_RTC_SPG_UPD, SPRD_RTC_LOCK);
@@ -489,15 +489,6 @@ static int sprd_rtc_check_power_down(struct device *dev)
 	return 0;
 }
 
-static int sprd_rtc_proc(struct device *dev, struct seq_file *seq)
-{
-	struct platform_device *plat_dev = to_platform_device(dev);
-
-	seq_printf(seq, "sprd_rtc\t: yes\n");
-	seq_printf(seq, "id\t\t: %d\n", plat_dev->id);
-
-	return 0;
-}
 void rtc_aie_update_irq(void *private);
 static irqreturn_t rtc_interrupt_handler(int irq, void *dev_id)
 {
@@ -505,7 +496,7 @@ static irqreturn_t rtc_interrupt_handler(int irq, void *dev_id)
 
 	printk(" RTC ***** interrupt happen\n");
 	//rtc_update_irq(rdev, 1, RTC_AF | RTC_IRQF);
-	wake_lock_timeout(&rtc_interrupt_wake_lock,2*HZ);
+	//wake_lock_timeout(&rtc_interrupt_wake_lock,2*HZ);
 	rtc_aie_update_irq(rdev);
 	CLEAR_RTC_INT(RTC_INT_ALL_MSK);
 	return IRQ_HANDLED;
@@ -547,20 +538,7 @@ static int sprd_remove_caliberate_attr(struct device dev)
 	return 0;
 }
 
-static int sprd_rtc_open(struct device *dev)
-{
-	int temp = 0;
-	/* enable rtc interrupt */
-	temp = sci_adi_read(ANA_RTC_INT_EN);
-	temp |= RTC_ALARM_BIT;
-	sci_adi_raw_write(ANA_RTC_INT_EN, temp);
-
-	return 0;
-}
-
 static const struct rtc_class_ops sprd_rtc_ops = {
-	.open = sprd_rtc_open,
-	.proc = sprd_rtc_proc,
 	.read_time = sprd_rtc_read_time,
 	.read_alarm = sprd_rtc_read_alarm,
 	.set_time = sprd_rtc_set_time,
@@ -672,12 +650,12 @@ static int __init sprd_rtc_init(void)
 {
 	int err;
 
-	wake_lock_init(&rtc_wake_lock, WAKE_LOCK_SUSPEND, "rtc");
-	wake_lock_init(&rtc_interrupt_wake_lock, WAKE_LOCK_SUSPEND, "rtc_interrupt");
+	//wake_lock_init(&rtc_wake_lock, WAKE_LOCK_SUSPEND, "rtc");
+	//wake_lock_init(&rtc_interrupt_wake_lock, WAKE_LOCK_SUSPEND, "rtc_interrupt");
 
 	if ((err = platform_driver_register(&sprd_rtc_driver))) {
-		wake_lock_destroy(&rtc_wake_lock);
-		wake_lock_destroy(&rtc_interrupt_wake_lock);
+		//wake_lock_destroy(&rtc_wake_lock);
+		//wake_lock_destroy(&rtc_interrupt_wake_lock);
 		return err;
 	}
 
@@ -692,8 +670,8 @@ static int __init sprd_rtc_init(void)
 static void __exit sprd_rtc_exit(void)
 {
 	platform_driver_unregister(&sprd_rtc_driver);
-	wake_lock_destroy(&rtc_interrupt_wake_lock);
-	wake_lock_destroy(&rtc_wake_lock);
+	//wake_lock_destroy(&rtc_interrupt_wake_lock);
+	//wake_lock_destroy(&rtc_wake_lock);
 }
 
 MODULE_AUTHOR("Mark Yang <markyang@spreadtrum.com");

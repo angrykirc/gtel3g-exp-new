@@ -24,7 +24,7 @@
 #include <mach/hardware.h>
 #include <mach/adi.h>
 #include <linux/module.h>
-#include <linux/wakelock.h>
+//#include <linux/wakelock.h>
 
 #include <linux/regulator/consumer.h>
 #include <mach/regulator.h>
@@ -220,8 +220,8 @@ static int gpio_button_value_last = 0;
 static volatile int button_state_last = 0; //0==released, 1==pressed
 static int current_key_code = KEY_RESERVED;
 static int plug_state_last = 0; //if the hardware detected the headset is plug in, set plug_state_last = 1
-static struct wake_lock headset_detect_wakelock;
-static struct wake_lock headset_button_wakelock;
+//static struct wake_lock headset_detect_wakelock;
+//static struct wake_lock headset_button_wakelock;
 static struct semaphore headset_sem;
 static struct platform_device *this_pdev = NULL;
 static struct sprd_headset headset = {
@@ -1274,7 +1274,7 @@ static irqreturn_t headset_button_irq_handler(int irq, void *dev)
         }
 
         headset_irq_button_enable(0, ht->irq_button);
-        wake_lock_timeout(&headset_button_wakelock, msecs_to_jiffies(2000));
+        //wake_lock_timeout(&headset_button_wakelock, msecs_to_jiffies(2000));
         gpio_button_value_last = gpio_button_value_current;
         PRINT_DBG("headset_button_irq_handler: IRQ_%d(GPIO_%d) = %d, ANA_STS0 = 0x%08X\n",
                   ht->irq_button, ht->platform_data->gpio_button, gpio_button_value_last,
@@ -1289,7 +1289,7 @@ static irqreturn_t headset_detect_irq_handler(int irq, void *dev)
 
         headset_irq_button_enable(0, ht->irq_button);
         headset_irq_detect_enable(0, ht->irq_detect);
-        wake_lock_timeout(&headset_detect_wakelock, msecs_to_jiffies(2000));
+        //wake_lock_timeout(&headset_detect_wakelock, msecs_to_jiffies(2000));
         gpio_detect_value_last = gpio_get_value(ht->platform_data->gpio_detect);
         PRINT_DBG("headset_detect_irq_handler: IRQ_%d(GPIO_%d) = %d, ANA_STS0 = 0x%08X\n",
                   ht->irq_detect, ht->platform_data->gpio_detect, gpio_detect_value_last,
@@ -1748,8 +1748,8 @@ static int headset_detect_probe(struct platform_device *pdev)
         PRINT_INFO("ADPGAR_BYP_SELECT is enabled!\n");
 #endif
 
-        wake_lock_init(&headset_detect_wakelock, WAKE_LOCK_SUSPEND, "headset_detect_wakelock");
-        wake_lock_init(&headset_button_wakelock, WAKE_LOCK_SUSPEND, "headset_button_wakelock");
+        //wake_lock_init(&headset_detect_wakelock, WAKE_LOCK_SUSPEND, "headset_detect_wakelock");
+        //wake_lock_init(&headset_button_wakelock, WAKE_LOCK_SUSPEND, "headset_button_wakelock");
 
         //set EIC3 de-bounce time for button irq
         headset_reg_set_val((ANA_EIC_BASE+EIC3_DBNC_CTRL), DBNC_CNT3_VALUE, DBNC_CNT3_MASK, DBNC_CNT3_SHIFT);

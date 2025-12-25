@@ -13,7 +13,8 @@
 #include <linux/cpu.h>
 #include <linux/thermal.h>
 #include <linux/err.h>
-#include <linux/earlysuspend.h>
+//#include <linux/earlysuspend.h>
+#include <asm-generic/cputime_jiffies.h>
 #include <linux/suspend.h>
 #include <asm/cacheflush.h>
 #include <linux/input.h>
@@ -214,6 +215,7 @@ static inline u64 get_cpu_idle_time_jiffy(unsigned int cpu, u64 *wall)
 	return cputime_to_usecs(idle_time);
 }
 
+/*
 static inline u64 get_cpu_idle_time(unsigned int cpu, u64 *wall, int io_busy)
 {
 	u64 idle_time = get_cpu_idle_time_us(cpu, io_busy ? wall : NULL);
@@ -225,8 +227,9 @@ static inline u64 get_cpu_idle_time(unsigned int cpu, u64 *wall, int io_busy)
 
 	return idle_time;
 }
+*/
 
-static void __cpuinit sprd_plugin_one_cpu_ss(struct work_struct *work)
+static void sprd_plugin_one_cpu_ss(struct work_struct *work)
 {
 	int cpuid;
 
@@ -256,7 +259,7 @@ static void __cpuinit sprd_plugin_one_cpu_ss(struct work_struct *work)
 #endif
 	return;
 }
-static void sprd_unplug_one_cpu_ss()
+static void sprd_unplug_one_cpu_ss(struct work_struct *work)
 {
 	unsigned int cpuid = 0;
 
@@ -638,7 +641,7 @@ void sd_check_cpu_sprd(unsigned int load_freq)
 	}
 }
 
-void dbs_check_cpu_sprd()
+void dbs_check_cpu_sprd(void)
 {
 	unsigned int max_load = 0;
 	unsigned int j;
@@ -798,7 +801,7 @@ static ssize_t dvfs_score_store(struct device *dev, struct device_attribute *att
 	int ret;
 	int value;
 
-	ret = strict_strtoul(buf,16,(long unsigned int *)&value);
+	ret = kstrtoul(buf,16,(long unsigned int *)&value);
 
 	printk(KERN_ERR"dvfs_score_input %x\n",value);
 
@@ -840,7 +843,7 @@ static ssize_t dvfs_unplug_store(struct device *dev, struct device_attribute *at
 	int ret;
 	int value;
 
-	ret = strict_strtoul(buf,16,(long unsigned int *)&value);
+	ret = kstrtoul(buf,16,(long unsigned int *)&value);
 
 	printk(KERN_ERR"dvfs_score_input %x\n",value);
 
@@ -874,7 +877,7 @@ static ssize_t dvfs_plug_store(struct device *dev, struct device_attribute *attr
 	int ret;
 	int value;
 
-	ret = strict_strtoul(buf,16,(long unsigned int *)&value);
+	ret = kstrtoul(buf,16,(long unsigned int *)&value);
 
 	printk(KERN_ERR"dvfs_plug_select %x\n",value);
 
@@ -1269,7 +1272,7 @@ struct input_handler dbs_input_handler = {
 	.id_table	= dbs_ids,
 };
 
-static void __init sprd_hotplug_init(void)
+static int __init sprd_hotplug_init(void)
 {
 	int i;
 	int ret;
@@ -1317,7 +1320,7 @@ static void __init sprd_hotplug_init(void)
 	if (ret) {
 		pr_err("%s: Failed to add kobject for hotplug\n", __func__);
 	}
-
+    return ret;
 }
 
 MODULE_AUTHOR("sprd");

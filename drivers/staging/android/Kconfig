@@ -2,6 +2,16 @@ menu "Android"
 
 if ANDROID
 
+
+config ANDROID_TIMED_OUTPUT
+	bool "Timed output class driver"
+	default y
+
+config ANDROID_TIMED_GPIO
+	tristate "Android timed gpio driver"
+	depends on GPIOLIB && ANDROID_TIMED_OUTPUT
+	default n
+
 config ASHMEM
 	bool "Enable the Anonymous Shared Memory Subsystem"
 	default n
