@@ -103,6 +103,13 @@ config REGULATOR_AD5398
 	  This driver supports AD5398 and AD5821 current regulator chips.
 	  If building into module, its name is ad5398.ko.
 
+config REGULATOR_SC2723
+	tristate "Spreadtrum PMIC SC2723/SC2723S regulator driver"
+	depends on ADIE_SC2723 || ADIE_SC2723S
+	default y
+	help
+	  Say Y here to support the voltage regulators for sc2723/sc2723s
+
 config REGULATOR_ANATOP
 	tristate "Freescale i.MX on-chip ANATOP LDO regulators"
 	depends on MFD_SYSCON

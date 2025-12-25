@@ -34,7 +34,7 @@
 #else
 
 static void __iomem *dma_reg_base;
-static inline void __iomem * get_dma_base()
+static inline void __iomem * get_dma_base(void)
 {
 	return dma_reg_base;
 }

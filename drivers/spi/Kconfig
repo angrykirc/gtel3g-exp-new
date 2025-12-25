@@ -195,6 +195,12 @@ config SPI_DAVINCI
 	help
 	  SPI master controller for DaVinci/DA8x/OMAP-L/AM1x SPI modules.
 
+config SPI_SCX35
+	tristate "SC8830 SPI controller module support"
+	depends on (ARCH_SCX35)
+	help
+	  SPI driver for Spreadtrum Shark series ARM SoCs
+
 config SPI_DESIGNWARE
 	tristate "DesignWare SPI controller core support"
 	help

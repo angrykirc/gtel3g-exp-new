@@ -14,6 +14,7 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
+#include <linux/of_device.h>
 #include <mach/hardware.h>
 #include <mach/watchdog.h>
 #include <mach/adi.h>

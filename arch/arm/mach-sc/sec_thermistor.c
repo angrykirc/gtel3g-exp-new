@@ -15,6 +15,7 @@
 #include <linux/module.h>
 #include <linux/err.h>
 #include <linux/platform_device.h>
+#include <linux/of_platform.h>
 #include <linux/slab.h>
 #include <mach/sec_thermistor.h>
 #include <mach/adc.h>

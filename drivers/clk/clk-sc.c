@@ -13,6 +13,7 @@
  *
  */
 
+#include <linux/clk.h>
 #include <linux/clk-provider.h>
 #include <linux/clkdev.h>
 #include <linux/clk-provider.h>
@@ -805,7 +806,7 @@ void __init of_sprd_fixed_clk_setup(struct device_node *node)
 
 	of_property_read_string(node, "clock-output-names", &clk_name);
 
-	clk = clk_register_fixed_rate(NULL, clk_name, NULL, CLK_IS_ROOT, rate);
+	clk = clk_register_fixed_rate(NULL, clk_name, NULL, 0, rate);
 	if (!IS_ERR(clk)) {
 		of_clk_add_provider(node, of_clk_src_simple_get, clk);
 		clk_register_clkdev(clk, clk_name, 0);
@@ -865,7 +866,7 @@ static void __init of_sprd_fixed_pll_clk_setup(struct device_node *node)
 	struct clk_init_data init = {
 		.name = clk_name,
 		.ops = &sprd_clk_fixed_pll_ops,
-		.flags = CLK_IS_ROOT,
+		.flags = 0,
 		.num_parents = 0,
 	};
 	u32 rate;
@@ -917,7 +918,7 @@ static void __init of_sprd_adjustable_pll_clk_setup(struct device_node *node)
 	struct clk_init_data init = {
 		.name = clk_name,
 		.ops = &sprd_clk_adjustable_pll_ops,
-		.flags = CLK_IS_ROOT,
+		.flags = 0,
 		.num_parents = 0,
 	};
 	const __be32 *mulreg, *prereg;
@@ -1104,7 +1105,7 @@ static struct clk_sprd *__init __of_sprd_composite_clk_setup(struct device_node
 		init.parent_names = (const char **)&mux[1];
 		clk_debug("parents : ");
 		for (i = 0; i < init.num_parents; i++) {
-			init.parent_names[i] = of_clk_get_parent_name(node, i);
+			((char *)mux)[i + 1] = of_clk_get_parent_name(node, i);
 			pr_debug("[%d]%s ", i, init.parent_names[i]);
 		}
 		pr_debug("\n");
