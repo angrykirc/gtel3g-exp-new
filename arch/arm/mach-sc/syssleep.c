@@ -23,14 +23,13 @@
 #include <mach/sci.h>
 #include <mach/sci_glb_regs.h>
 
-static int syssleep_read_proc(char *page, char **start, off_t off,
-			  int count, int *eof, void *data)
+static int syssleep_read_proc(struct file *file, char __user *buffer, size_t count, loff_t *offp)
 {
 	return 0;
 }
 
 static int syssleep_write_proc(struct file *file, const char __user *buffer,
-			   unsigned long count, void *data)
+			   unsigned int count, long long int *data)
 {
 #if 0
     sci_glb_write(REG_PMU_APB_PD_CP0_ARM9_0_CFG, BIT(24) | BIT(25), -1UL);
