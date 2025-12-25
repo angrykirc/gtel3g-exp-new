@@ -178,9 +178,10 @@ static int sec_bat_set_charge(
 
 	struct timespec ts;
 	ktime_t current_time;
-
+/*
 	if (battery->cable_type == POWER_SUPPLY_TYPE_OTG)
 		return 0;
+*/
 	val.intval = battery->status;
 	psy_do_property(battery->pdata->charger_name, set,
 		POWER_SUPPLY_PROP_STATUS, val);
@@ -222,7 +223,7 @@ static int sec_bat_set_charge(
 
 	psy_do_property(battery->pdata->fuelgauge_name, set,
 		POWER_SUPPLY_PROP_ONLINE, val);
-
+/*
 #if defined(CONFIG_WIRELESS_CHARGER_INBATTERY)
 	if (battery->cable_type == POWER_SUPPLY_TYPE_WIRELESS && enable) {
 			val.intval = POWER_SUPPLY_TYPE_WIRELESS;
@@ -235,7 +236,7 @@ static int sec_bat_set_charge(
 			POWER_SUPPLY_PROP_ONLINE, val);
 	}
 #endif
-
+*/
 	return 0;
 }
 
@@ -1224,6 +1225,7 @@ static bool sec_bat_temperature_check(
 						POWER_SUPPLY_PROP_VOLTAGE_MAX, val);
 			}
 #endif
+/*
 #if defined(CONFIG_WIRELESS_CHARGER_INBATTERY)
 			if (battery->cable_type == POWER_SUPPLY_TYPE_WIRELESS) {
 				union power_supply_propval val;
@@ -1232,6 +1234,7 @@ static bool sec_bat_temperature_check(
 						POWER_SUPPLY_PROP_HEALTH, val);
 			}
 #endif
+*/
 			dev_info(battery->dev,
 				"%s: Unsafe Temperature\n", __func__);
 			battery->status = POWER_SUPPLY_STATUS_NOT_CHARGING;
@@ -1370,8 +1373,7 @@ static void sec_bat_chg_temperature_check(
 		return;
 
 	if (battery->siop_level >= 100 &&
-			((battery->cable_type == POWER_SUPPLY_TYPE_HV_MAINS) ||
-			 (battery->cable_type == POWER_SUPPLY_TYPE_HV_ERR))) {
+            battery->cable_type == POWER_SUPPLY_TYPE_USB) {
 		union power_supply_propval value;
 		if ((battery->chg_limit == SEC_BATTERY_CHG_TEMP_NONE) &&
 				(battery->chg_temp > battery->pdata->chg_high_temp_1st)) {
@@ -1400,7 +1402,9 @@ static void sec_bat_chg_temperature_check(
 			dev_info(battery->dev,"%s: Chg current is recovered by Temp: %d\n",
 					__func__, battery->chg_temp);
 		}
-	} else if (battery->siop_level >= 100 &&
+	} 
+    /* 
+    else if (battery->siop_level >= 100 &&
 			(battery->cable_type == POWER_SUPPLY_TYPE_WIRELESS) && battery->pdata->wpc_temp_check) {
 		union power_supply_propval value;
 		if ((battery->chg_limit == SEC_BATTERY_CHG_TEMP_NONE) &&
@@ -1421,7 +1425,8 @@ static void sec_bat_chg_temperature_check(
 			dev_info(battery->dev,"%s: WPC Chg current is recovered by Temp: %d\n",
 					__func__, battery->chg_temp);
 		}
-	} else if (battery->chg_limit != SEC_BATTERY_CHG_TEMP_NONE) {
+	} */
+    else if (battery->chg_limit != SEC_BATTERY_CHG_TEMP_NONE) {
 		battery->chg_limit = SEC_BATTERY_CHG_TEMP_NONE;
 	}
 }
@@ -1722,8 +1727,7 @@ static bool sec_bat_time_management(
 		battery->charging_passed_time);
 
 	if (battery->pdata->chg_temp_check && battery->skip_chg_temp_check) {
-		if ((battery->cable_type == POWER_SUPPLY_TYPE_HV_MAINS ||
-			battery->cable_type == POWER_SUPPLY_TYPE_HV_ERR) &&
+		if (battery->cable_type == POWER_SUPPLY_TYPE_USB &&
 			battery->charging_passed_time >= battery->pdata->chg_skip_check_time) {
 				battery->skip_chg_temp_check = false;
 				dev_info(battery->dev,
@@ -2009,6 +2013,7 @@ static void sec_bat_do_fullcharged(
 		battery->charging_fullcharged_time =
 			battery->charging_passed_time;
 		sec_bat_set_charge(battery, true);
+/*
 #if defined(CONFIG_WIRELESS_CHARGER_INBATTERY) && defined(CONFIG_WIRELESS_CHARGER_INBATTERY_CS100)
 		if (battery->cable_type == POWER_SUPPLY_TYPE_WIRELESS) {
 			value.intval = POWER_SUPPLY_STATUS_FULL;
@@ -2016,11 +2021,12 @@ static void sec_bat_do_fullcharged(
 				POWER_SUPPLY_PROP_STATUS, value);
 		}
 #endif
+*/
 	} else if (battery->capacity == 100) {
 		battery->charging_mode = SEC_BATTERY_CHARGING_NONE;
 		battery->is_recharging = false;
 		sec_bat_set_charge(battery, false);
-
+/*
 #if defined(CONFIG_WIRELESS_CHARGER_INBATTERY) && !defined(CONFIG_WIRELESS_CHARGER_INBATTERY_CS100)
 				if (battery->cable_type == POWER_SUPPLY_TYPE_WIRELESS) {
 					value.intval = POWER_SUPPLY_STATUS_FULL;
@@ -2028,6 +2034,7 @@ static void sec_bat_do_fullcharged(
 						POWER_SUPPLY_PROP_STATUS, value);
 				}
 #endif
+*/
 		value.intval = POWER_SUPPLY_STATUS_FULL;
 		psy_do_property(battery->pdata->fuelgauge_name, set,
 			POWER_SUPPLY_PROP_STATUS, value);
@@ -2433,8 +2440,7 @@ static void sec_bat_calc_time_to_full(struct sec_battery_info * battery)
 		union power_supply_propval value;
 		int input = battery->pdata->charging_current[battery->cable_type].input_current_limit;
 		int charge = battery->pdata->charging_current[battery->cable_type].fast_charging_current;
-		if ((battery->cable_type == POWER_SUPPLY_TYPE_HV_MAINS) ||
-			 (battery->cable_type == POWER_SUPPLY_TYPE_HV_ERR)) {
+		if (battery->cable_type == POWER_SUPPLY_TYPE_USB) {
 				value.intval = charge;
 		} else if (input == battery->current_max) {
 			if (input == 1800) // TA cannot charge 2100
@@ -2474,6 +2480,7 @@ static void sec_bat_time_to_full_work(struct work_struct *work)
 #if defined(CONFIG_WIRELESS_CHARGER_INBATTERY)
 static void sec_bat_cc_cv_mode_check(struct sec_battery_info *battery)
 {
+    /*
 	union power_supply_propval value;
 
 	if (battery->cable_type == POWER_SUPPLY_TYPE_WIRELESS &&
@@ -2485,6 +2492,7 @@ static void sec_bat_cc_cv_mode_check(struct sec_battery_info *battery)
 		psy_do_property(battery->pdata->wireless_charger_name, set, POWER_SUPPLY_PROP_CHARGE_TYPE,
 			value);
 	}
+    */
 }
 #endif
 
@@ -2688,14 +2696,18 @@ static void sec_bat_cable_work(struct work_struct *work)
 
 	dev_info(battery->dev, "%s: Start\n", __func__);
 
-	wl_cur = battery->pdata->charging_current[
+	/*
+    wl_cur = battery->pdata->charging_current[
 		POWER_SUPPLY_TYPE_WIRELESS].input_current_limit;
+    */
 	wr_cur = battery->pdata->charging_current[
 		battery->wire_status].input_current_limit;
-	if (battery->wc_status && battery->wc_enable &&
+	/*
+    if (battery->wc_status && battery->wc_enable &&
 			(wl_cur > wr_cur))
 		current_cable_type = POWER_SUPPLY_TYPE_WIRELESS;
 	else
+    */
 		current_cable_type = battery->wire_status;
 
 	if (current_cable_type == battery->cable_type) {
@@ -2763,10 +2775,10 @@ static void sec_bat_cable_work(struct work_struct *work)
 			"%s:slate mode on\n",__func__);
 	} else {
 		/* Do NOT display the charging icon when OTG is enabled */
-		if (battery->cable_type == POWER_SUPPLY_TYPE_OTG) {
+		/*if (battery->cable_type == POWER_SUPPLY_TYPE_OTG) {
 			battery->charging_mode = SEC_BATTERY_CHARGING_NONE;
 			battery->status = POWER_SUPPLY_STATUS_DISCHARGING;
-		} else {
+		} else {*/
 			if (battery->pdata->full_check_type !=
 				SEC_BATTERY_FULLCHARGED_NONE)
 				battery->charging_mode =
@@ -2775,7 +2787,7 @@ static void sec_bat_cable_work(struct work_struct *work)
 				battery->charging_mode =
 					SEC_BATTERY_CHARGING_2ND;
 			battery->status = POWER_SUPPLY_STATUS_CHARGING;
-		}
+		//}
 
 		if (sec_bat_set_charge(battery, true))
 			goto end_of_cable_work;
@@ -2792,8 +2804,7 @@ static void sec_bat_cable_work(struct work_struct *work)
 #endif
 
 		if (battery->pdata->chg_temp_check &&
-			(battery->cable_type == POWER_SUPPLY_TYPE_HV_MAINS ||
-			battery->cable_type == POWER_SUPPLY_TYPE_HV_ERR) &&
+            battery->cable_type == POWER_SUPPLY_TYPE_USB &&
 			battery->capacity <= battery->pdata->chg_skip_check_capacity) {
 				battery->skip_chg_temp_check = true;
 				dev_info(battery->dev,
@@ -3058,17 +3069,16 @@ ssize_t sec_bat_show_attrs(struct device *dev,
 	case WC_ADC:
 		break;
 	case WC_STATUS:
-		i += scnprintf(buf + i, PAGE_SIZE - i, "%d\n",
-			(battery->cable_type == POWER_SUPPLY_TYPE_WIRELESS));
+		i += scnprintf(buf + i, PAGE_SIZE - i, "%d\n", false);
+		//	(battery->cable_type == POWER_SUPPLY_TYPE_WIRELESS));
 		break;
 	case WC_ENABLE:
 		i += scnprintf(buf + i, PAGE_SIZE - i, "%d\n",
 			battery->wc_enable);
 		break;
 	case HV_CHARGER_STATUS:
-		i += scnprintf(buf + i, PAGE_SIZE - i, "%d\n",
-			((battery->cable_type == POWER_SUPPLY_TYPE_HV_MAINS) ||
-			(battery->cable_type == POWER_SUPPLY_TYPE_HV_ERR)) ? 1 : 0);
+		i += scnprintf(buf + i, PAGE_SIZE - i, "%d\n", 
+                battery->cable_type == POWER_SUPPLY_TYPE_USB? 1 : 0);
 		break;
 	case HV_CHARGER_SET:
 		break;
@@ -3237,12 +3247,12 @@ ssize_t sec_bat_show_attrs(struct device *dev,
 #endif
 		break;
 	case HMT_TA_CONNECTED:
-		i += scnprintf(buf + i, PAGE_SIZE - i, "%d\n",
-			(battery->cable_type == POWER_SUPPLY_TYPE_HMT_CONNECTED) ? 1 : 0);
+		i += scnprintf(buf + i, PAGE_SIZE - i, "%d\n", 0);
+			/*(battery->cable_type == POWER_SUPPLY_TYPE_HMT_CONNECTED) ? 1 : 0);*/
 		break;
 	case HMT_TA_CHARGE:
-		i += scnprintf(buf + i, PAGE_SIZE - i, "%d\n",
-			(battery->cable_type == POWER_SUPPLY_TYPE_HMT_CHARGE) ? 1 : 0);
+		i += scnprintf(buf + i, PAGE_SIZE - i, "%d\n", 0);
+			/*(battery->cable_type == POWER_SUPPLY_TYPE_HMT_CHARGE) ? 1 : 0);*/
 		break;
 	default:
 		i = -EINVAL;
@@ -3290,8 +3300,8 @@ ssize_t sec_bat_store_attrs(
 	switch (offset) {
 	case BATT_RESET_SOC:
 		/* Do NOT reset fuel gauge in charging mode */
-		if (battery->cable_type == POWER_SUPPLY_TYPE_BATTERY ||
-			battery->cable_type == POWER_SUPPLY_TYPE_UARTOFF) {
+		if (battery->cable_type == POWER_SUPPLY_TYPE_BATTERY /*||
+			battery->cable_type == POWER_SUPPLY_TYPE_UARTOFF*/) {
 			union power_supply_propval value;
 			battery->voltage_now = 1234;
 			battery->voltage_avg = 1234;
@@ -3422,7 +3432,7 @@ ssize_t sec_bat_store_attrs(
 			dev_info(battery->dev,
 				"%s: HV_CHARGER_SET(%d)\n", __func__, x);
 			if (x == 1) {
-				battery->wire_status = POWER_SUPPLY_TYPE_HV_MAINS;
+				battery->wire_status = POWER_SUPPLY_TYPE_USB;
 				//wake_lock(&battery->cable_wake_lock);
 				queue_work(battery->monitor_wqueue, &battery->cable_work);
 			} else {
@@ -4103,24 +4113,7 @@ static int sec_ac_get_property(struct power_supply *psy,
 	/* Set enable=1 only if the AC charger is connected */
 	switch (battery->cable_type) {
 	case POWER_SUPPLY_TYPE_MAINS:
-	case POWER_SUPPLY_TYPE_MISC:
-	case POWER_SUPPLY_TYPE_CARDOCK:
-	case POWER_SUPPLY_TYPE_UARTOFF:
-	case POWER_SUPPLY_TYPE_LAN_HUB:
-	case POWER_SUPPLY_TYPE_UNKNOWN:
-	case POWER_SUPPLY_TYPE_MHL_500:
-	case POWER_SUPPLY_TYPE_MHL_900:
-	case POWER_SUPPLY_TYPE_MHL_1500:
-	case POWER_SUPPLY_TYPE_MHL_2000:
-	case POWER_SUPPLY_TYPE_SMART_OTG:
-	case POWER_SUPPLY_TYPE_SMART_NOTG:
-	case POWER_SUPPLY_TYPE_HV_PREPARE_MAINS:
-	case POWER_SUPPLY_TYPE_HV_ERR:
-	case POWER_SUPPLY_TYPE_HV_UNKNOWN:
-	case POWER_SUPPLY_TYPE_HV_MAINS:
-	case POWER_SUPPLY_TYPE_MDOCK_TA:
-	case POWER_SUPPLY_TYPE_HMT_CONNECTED:
-	case POWER_SUPPLY_TYPE_HMT_CHARGE:
+	case POWER_SUPPLY_TYPE_USB:
 		val->intval = 1;
 		break;
 	default:
@@ -4331,7 +4324,7 @@ static int sec_bat_cable_check(struct sec_battery_info *battery,
 	case ATTACHED_DEV_OTG_MUIC:
 	case ATTACHED_DEV_JIG_UART_OFF_VB_OTG_MUIC:
 	case ATTACHED_DEV_HMT_MUIC:
-		current_cable_type = POWER_SUPPLY_TYPE_OTG;
+		current_cable_type = POWER_SUPPLY_TYPE_USB;
 		break;
 	case ATTACHED_DEV_USB_MUIC:
 	case ATTACHED_DEV_JIG_USB_OFF_MUIC:
@@ -4342,7 +4335,7 @@ static int sec_bat_cable_check(struct sec_battery_info *battery,
 		break;
 	case ATTACHED_DEV_JIG_UART_OFF_VB_MUIC:
 	case ATTACHED_DEV_JIG_UART_OFF_VB_FG_MUIC:
-		current_cable_type = POWER_SUPPLY_TYPE_UARTOFF;
+		current_cable_type = POWER_SUPPLY_TYPE_MAINS;
 		break;
 	case ATTACHED_DEV_TA_MUIC:
 	case ATTACHED_DEV_CARDOCK_MUIC:
@@ -4358,33 +4351,33 @@ static int sec_bat_cable_check(struct sec_battery_info *battery,
 		break;
 	case ATTACHED_DEV_CDP_MUIC:
 	case ATTACHED_DEV_UNOFFICIAL_ID_CDP_MUIC:
-		current_cable_type = POWER_SUPPLY_TYPE_USB_CDP;
+		current_cable_type = POWER_SUPPLY_TYPE_MAINS;
 		break;
 	case ATTACHED_DEV_USB_LANHUB_MUIC:
-		current_cable_type = POWER_SUPPLY_TYPE_LAN_HUB;
+		current_cable_type = POWER_SUPPLY_TYPE_MAINS;
 		break;
 	case ATTACHED_DEV_CHARGING_CABLE_MUIC:
-		current_cable_type = POWER_SUPPLY_TYPE_POWER_SHARING;
+		current_cable_type = POWER_SUPPLY_TYPE_USB;
 		break;
 	case ATTACHED_DEV_AFC_CHARGER_PREPARE_MUIC:
 	case ATTACHED_DEV_QC_CHARGER_PREPARE_MUIC:
-		current_cable_type = POWER_SUPPLY_TYPE_HV_PREPARE_MAINS;
+		current_cable_type = POWER_SUPPLY_TYPE_MAINS;
 		break;
 	case ATTACHED_DEV_AFC_CHARGER_9V_MUIC:
 	case ATTACHED_DEV_QC_CHARGER_9V_MUIC:
-		current_cable_type = POWER_SUPPLY_TYPE_HV_MAINS;
+		current_cable_type = POWER_SUPPLY_TYPE_MAINS;
 		break;
 	case ATTACHED_DEV_AFC_CHARGER_ERR_V_MUIC:
 	case ATTACHED_DEV_QC_CHARGER_ERR_V_MUIC:
-		current_cable_type = POWER_SUPPLY_TYPE_HV_ERR;
+		current_cable_type = POWER_SUPPLY_TYPE_UNKNOWN;
 		break;
 	case ATTACHED_DEV_UNDEFINED_CHARGING_MUIC:
-		current_cable_type = POWER_SUPPLY_TYPE_MAINS;
+		current_cable_type = POWER_SUPPLY_TYPE_UNKNOWN;
 		break;
 	case ATTACHED_DEV_HV_ID_ERR_UNDEFINED_MUIC:
 	case ATTACHED_DEV_HV_ID_ERR_UNSUPPORTED_MUIC:
 	case ATTACHED_DEV_HV_ID_ERR_SUPPORTED_MUIC:
-		current_cable_type = POWER_SUPPLY_TYPE_HV_UNKNOWN;
+		current_cable_type = POWER_SUPPLY_TYPE_UNKNOWN;
 		break;
 	case ATTACHED_DEV_VZW_INCOMPATIBLE_MUIC:
 		current_cable_type = POWER_SUPPLY_TYPE_UNKNOWN;
