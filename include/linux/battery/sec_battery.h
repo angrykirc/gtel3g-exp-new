@@ -26,7 +26,7 @@
 #else
 #include <linux/alarmtimer.h>
 #endif
-#include <linux/wakelock.h>
+//#include <linux/wakelock.h>
 #include <linux/workqueue.h>
 #include <linux/proc_fs.h>
 #include <linux/jiffies.h>
