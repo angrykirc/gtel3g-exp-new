@@ -190,7 +190,7 @@ static void    monitor_setup_transfer(unsigned long para)
 		dwc_udc_startup();
 	}
 }
-static void setup_transfer_timer_fun(unsigned long para)
+static void setup_transfer_timer_fun(struct timer_list *para)
 {
 	monitor_setup_transfer((unsigned long)gadget_wrapper->pcd);
 	if(gadget_wrapper->pcd->ep0state != EP0_DISCONNECT)
@@ -672,9 +672,9 @@ extern void dwc_otg_pcd_stop(dwc_otg_pcd_t *pcd);
 static void __udc_startup(void);
 static void __udc_shutdown(void);
 
-int dwc_peripheral_start(void *data, bool enable);
+int dwc_peripheral_start(void *data, int enable);
 
-static int vbus_session(struct usb_gadget *gadget, bool is_active)
+static int vbus_session(struct usb_gadget *gadget, int is_active)
 {
 	dwc_peripheral_start(NULL, is_active);
 	return 0;
@@ -730,7 +730,7 @@ static int pullup(struct usb_gadget *gadget, int is_on)
 }
 
 static int dwc_usb_gadget_start(struct usb_gadget *, struct usb_gadget_driver *);
-static int dwc_usb_gadget_stop(struct usb_gadget *, struct usb_gadget_driver *);
+static int dwc_usb_gadget_stop(struct usb_gadget *);
 
 static const struct usb_gadget_ops dwc_otg_pcd_ops = {
 	.get_frame = get_frame_number,
@@ -1406,7 +1406,7 @@ static void cable2pc_detect_works(struct work_struct *work)
 	return;
 }
 
-int dwc_peripheral_start(void *data, bool enable)
+int dwc_peripheral_start(void *data, int enable)
 {
 	struct gadget_wrapper *d;
 	d = gadget_wrapper;
@@ -1492,7 +1492,7 @@ int pcd_init(
 	 */
 #ifndef CONFIG_USB_CORE_IP_293A
 	{
-		setup_timer(&setup_transfer_timer,setup_transfer_timer_fun,(unsigned long)gadget_wrapper);
+		timer_setup(&setup_transfer_timer,setup_transfer_timer_fun,(unsigned long)gadget_wrapper);
 		setup_transfer_timer_start = 0;
 	}
 #endif
@@ -1633,7 +1633,7 @@ static int dwc_usb_gadget_start(struct usb_gadget *gadget, struct usb_gadget_dri
  *
  * @param driver The driver being unregistered
  */
-static int dwc_usb_gadget_stop(struct usb_gadget *gadget, struct usb_gadget_driver *driver)
+static int dwc_usb_gadget_stop(struct usb_gadget *gadget)
 {
 	//DWC_DEBUGPL(DBG_PCDV,"%s(%p)\n", __func__, _driver);
 
@@ -1642,16 +1642,11 @@ static int dwc_usb_gadget_stop(struct usb_gadget *gadget, struct usb_gadget_driv
 				-ENODEV);
 		return -ENODEV;
 	}
-	if (driver == 0 || driver != gadget_wrapper->driver) {
-		DWC_DEBUGPL(DBG_ANY, "%s Return(%d): driver?\n", __func__,
-				-EINVAL);
-		return -EINVAL;
-	}
 
 	gadget_wrapper->driver = 0;
 	gadget_wrapper->enabled = 0;
 
-	DWC_DEBUGPL(DBG_ANY, "unregistered driver '%s'\n", driver->driver.name);
+	DWC_DEBUGPL(DBG_ANY, "unregistered driver\n");
 	return 0;
 }
 

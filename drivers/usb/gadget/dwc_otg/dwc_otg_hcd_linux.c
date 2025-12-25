@@ -61,7 +61,7 @@
 #include <linux/usb.h>
 #include <linux/usb/hcd.h>
 #include <linux/usb/gadget.h>
-#include <linux/usb_notifier.h>
+//#include <linux/usb_notifier.h>
 
 #include "dwc_otg_hcd_if.h"
 #include "dwc_otg_dbg.h"

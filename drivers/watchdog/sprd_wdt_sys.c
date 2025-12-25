@@ -38,7 +38,7 @@
 #include <mach/watchdog.h>
 #include <asm/io.h>
 #include <asm/fiq.h>
-#include <asm/fiq_glue.h>
+//#include <asm/fiq_glue.h>
 #include <asm/cacheflush.h>
 
 #define KERNEL_ONLY_CHIP_DOG 0
@@ -74,6 +74,7 @@ static irqreturn_t ca7_wdg_isr(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 #else
+/* unsupported */
 static void ca7_wdg_fiq(struct fiq_glue_handler *h, void *regs, void *svc_sp)
 {
 	flush_cache_all();
@@ -88,6 +89,7 @@ static void ca7_wdg_fiq(struct fiq_glue_handler *h, void *regs, void *svc_sp)
 static struct fiq_glue_handler ca7_wdg_fiq_glue_handler = {
 	.fiq = ca7_wdg_fiq,
 };
+
 #endif
 
 #define sprd_wdt_shutdown NULL
@@ -255,7 +257,7 @@ static void __exit sci_wdt_kfeeder_exit(void)
 module_init(sci_wdt_kfeeder_init);
 module_exit(sci_wdt_kfeeder_exit);
 
-int param_set_enabled(const char *val, struct kernel_param *kp)
+int param_set_enabled(const char *val, const struct kernel_param *kp)
 {
 	int ret;
 
@@ -271,7 +273,7 @@ int param_set_enabled(const char *val, struct kernel_param *kp)
 	return ret;
 }
 
-int param_set_feed_period(const char *val, struct kernel_param *kp)
+int param_set_feed_period(const char *val, const struct kernel_param *kp)
 {
 	int ret;
 

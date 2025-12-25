@@ -34,7 +34,7 @@
 #ifdef CONFIG_MFD_SM5504
 #include <linux/mfd/sm5504.h>
 #endif
-#include <linux/usb_notify.h>
+//#include <linux/usb_notify.h>
 
 #if defined(CONFIG_ARCH_SC8825)||defined(CONFIG_ARCH_SCX35)
 #define  USB_LDO_NAME	"vddusb"
@@ -161,6 +161,7 @@ void usb_phy_init(struct platform_device *_dev)
 
 	//sci_glb_set(REG_AP_APB_USB_PHY_TUNE,BIT(9)|BIT(10)|BIT(11)|BIT(20));
 #else
+    /* unsupported */
 		/*
 		* tiger PHY reg is different with previous ,
 		*7710 has the same core IP with tiger,but PHY reg also diff
@@ -175,6 +176,7 @@ void usb_phy_init(struct platform_device *_dev)
         sprd_greg_clear_bits(REG_TYPE_AHB_GLOBAL,BIT(15)|BIT(14), USB_PHY_CTRL);
 #endif
 #else
+    /* unsupported */
     if (sprd_greg_read(REG_TYPE_AHB_GLOBAL,CHIP_ID) == CHIP_ID_8810S){
                 /*SMIC chip id == 0x88100001*/
                 sprd_greg_clear_bits(REG_TYPE_AHB_GLOBAL,BIT(3)|BIT(2), USB_PHY_CTRL);
