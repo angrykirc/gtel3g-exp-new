@@ -186,7 +186,8 @@ obj-$(CONFIG_MULTIPLEXER)	+= mux/
 obj-$(CONFIG_UNISYS_VISORBUS)	+= visorbus/
 obj-$(CONFIG_SIOX)		+= siox/
 obj-$(CONFIG_GNSS)		+= gnss/
-obj-$(CONFIG_SPRD_CPU_DYNAMIC_HOTPLUG)	+=cpuhotplug/
+obj-$(CONFIG_SPRD_CPU_DYNAMIC_HOTPLUG)	+= cpuhotplug/
 obj-$(CONFIG_SPRD_IQ)           += iq/
 obj-$(CONFIG_BATTERY_SAMSUNG)	+= battery/
+obj-$(CONFIG_SWITCH)		+= switch/
 

@@ -2,7 +2,6 @@ menu "Android"
 
 if ANDROID
 
-
 config ANDROID_TIMED_OUTPUT
 	bool "Timed output class driver"
 	default y
