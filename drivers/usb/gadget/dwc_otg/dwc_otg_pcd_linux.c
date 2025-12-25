@@ -69,7 +69,7 @@
 #include <linux/usb/gadget.h>
 #include <linux/gpio.h>
 #include <linux/irq.h>
-#include <linux/wakelock.h>
+//#include <linux/wakelock.h>
 #include <linux/switch.h>
 #include <mach/usb.h>
 #include <mach/board.h>
@@ -109,7 +109,7 @@ static struct gadget_wrapper {
 	spinlock_t lock;
 } *gadget_wrapper;
 
-static struct wake_lock usb_wake_lock;
+//static struct wake_lock usb_wake_lock;
 static DEFINE_MUTEX(udc_lock);
 
 #define CABLE_TIMEOUT		(HZ*15)
@@ -1135,7 +1135,7 @@ static void __udc_startup(void)
 
 	pr_info("USB:startup udc\n");
 	if (!d->udc_startup) {
-		wake_lock(&usb_wake_lock);
+		//wake_lock(&usb_wake_lock);
 		udc_enable();
 		usb_phy_tune_dev();
 		dwc_otg_core_init(GET_CORE_IF(d->pcd));
@@ -1175,7 +1175,7 @@ static void __udc_shutdown(void)
 		dwc_otg_pcd_stop(d->pcd);
 		udc_disable();
 		d->udc_startup = 0;
-		wake_unlock(&usb_wake_lock);
+		//wake_unlock(&usb_wake_lock);
 	}
 }
 
@@ -1423,7 +1423,7 @@ int dwc_peripheral_start(void *data, bool enable)
 	}
 
 	if(enable) {
-		wake_lock(&usb_wake_lock);
+		//wake_lock(&usb_wake_lock);
 		udc_enable();
 		dwc_otg_core_init(GET_CORE_IF(d->pcd));
 		dwc_otg_enable_global_interrupts(GET_CORE_IF(d->pcd));
@@ -1435,7 +1435,7 @@ int dwc_peripheral_start(void *data, bool enable)
 		dwc_otg_pcd_stop(d->pcd);
 		udc_disable();
 		d->udc_startup = 0;
-		wake_unlock(&usb_wake_lock);
+		//wake_unlock(&usb_wake_lock);
 	}
 	mutex_unlock(&udc_lock);
 	return 0;
@@ -1457,7 +1457,7 @@ int pcd_init(
 
 	DWC_DEBUGPL(DBG_PCDV, "%s(%p)\n", __func__, _dev);
 
-	wake_lock_init(&usb_wake_lock, WAKE_LOCK_SUSPEND, "usb_work");
+	//wake_lock_init(&usb_wake_lock, WAKE_LOCK_SUSPEND, "usb_work");
 //	wake_lock(&usb_wake_lock);
 	otg_dev->pcd = dwc_otg_pcd_init(otg_dev->core_if);
 
@@ -1585,7 +1585,7 @@ struct platform_device *_dev
 	dwc_otg_pcd_remove(pcd);
 	destroy_workqueue(gadget_wrapper->detect_wq);
 	destroy_workqueue(gadget_wrapper->cable2pc_wq);
-	wake_lock_destroy(&usb_wake_lock);
+	//wake_lock_destroy(&usb_wake_lock);
 	switch_dev_unregister(&gadget_wrapper->sdev);
 	free_wrapper(gadget_wrapper);
 	pcd = 0;
