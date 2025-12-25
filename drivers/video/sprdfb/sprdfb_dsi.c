@@ -452,7 +452,7 @@ static int32_t dsi_module_init(struct sprdfb_device *dev)
 	printk("[LCD] sprdfb: dsi irq_num_1 = %d\n", irq_num_1);
 
 //	ret = request_irq(IRQ_DSI_INTN0, dsi_isr0, IRQF_DISABLED, "DSI_INT0", &dsi_ctx);
-	ret = request_irq(irq_num_1, dsi_isr0, IRQF_DISABLED, "DSI_INT0", &dsi_ctx);
+	ret = request_irq(irq_num_1, dsi_isr0, 0, "DSI_INT0", &dsi_ctx);
 	if (ret) {
 		printk(KERN_ERR "[LCD] sprdfb: dsi failed to request irq int0!\n");
 //		clk_disable(dsi_ctx.clk_dsi);
@@ -468,7 +468,7 @@ static int32_t dsi_module_init(struct sprdfb_device *dev)
 	printk("[LCD] sprdfb: dsi irq_num_2 = %d\n", irq_num_2);
 
 //	ret = request_irq(IRQ_DSI_INTN1, dsi_isr1, IRQF_DISABLED, "DSI_INT1", &dsi_ctx);
-	ret = request_irq(irq_num_2, dsi_isr1, IRQF_DISABLED, "DSI_INT1", &dsi_ctx);
+	ret = request_irq(irq_num_2, dsi_isr1, 0, "DSI_INT1", &dsi_ctx);
 	if (ret) {
 		printk(KERN_ERR "[LCD] sprdfb: dsi failed to request irq int1!\n");
 //		clk_disable(dsi_ctx.clk_dsi);

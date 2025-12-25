@@ -2307,6 +2307,7 @@ config FB_SIMPLE
 	  through device tree, or plain old platform data.
 
 source "drivers/video/sprdfb/Kconfig"
+source "drivers/video/backlight/Kconfig"
 
 config FB_SSD1307
 	tristate "Solomon SSD1307 framebuffer support"

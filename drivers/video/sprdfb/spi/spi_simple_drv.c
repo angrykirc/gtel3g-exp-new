@@ -290,7 +290,7 @@ void SPI_Init(u32 spi_id, SPI_INIT_PARM *spi_parm)
 	spi_ctr_ptr->ctl7 |= SPIMODE_3WIRE_9BIT_SDIO << 3;
 }
 
-static void SPI_WaitTxFinish()
+static void SPI_WaitTxFinish(void)
 {
 	volatile SPI_CTL_REG_T *spi_ctr_ptr = (volatile SPI_CTL_REG_T *)(used_spi_reg_base);
 

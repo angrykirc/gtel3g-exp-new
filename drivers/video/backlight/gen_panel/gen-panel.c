@@ -458,12 +458,17 @@ static inline void free_candela_map_table(void)
 static int gen_panel_get_temperature(int *temp)
 {
 	struct power_supply *psy;
-	union power_supply_propval val;
+	struct power_supply_desc *desc;
+    union power_supply_propval val;
 	int ret;
 
 	psy = power_supply_get_by_name("battery");
-	if (psy && psy->get_property) {
-		ret = psy->get_property(psy, POWER_SUPPLY_PROP_TEMP, &val);
+    desc = psy->desc;
+    if (!desc) {
+        return 0;
+    }
+	if (desc && desc->get_property) {
+		ret = desc->get_property(psy, POWER_SUPPLY_PROP_TEMP, &val);
 		if (ret)
 			return ret;
 		*temp = val.intval / 10;

@@ -19,7 +19,7 @@
 #include <linux/backlight.h>
 #include <linux/platform_data/gen-panel.h>
 #include <linux/platform_data/gen-panel-bl.h>
-#include <linux/earlysuspend.h>
+//#include <linux/earlysuspend.h>
 #include <linux/gpio.h>
 #include <linux/of_gpio.h>
 
@@ -299,12 +299,13 @@ static void gen_panel_bl_late_resume(struct early_suspend *h)
 	pr_info("[BACKLIGHT] gen_panel_backlight resumed.\n");
 }
 
+/*
 static struct early_suspend gen_panel_bl_early_suspend_desc = {
 	.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN - 1,
 	.suspend = gen_panel_bl_early_suspend,
 	.resume = gen_panel_bl_late_resume,
 };
-
+*/
 
 static int gen_panel_backlight_probe(struct platform_device *pdev)
 {

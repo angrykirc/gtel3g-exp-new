@@ -62,3 +62,5 @@ obj-$(CONFIG_BACKLIGHT_RAVE_SP)		+= rave-sp-backlight.o
 
 obj-$(CONFIG_BACKLIGHT_SPRD)	        += sprd_backlight.o
 obj-$(CONFIG_BACKLIGHT_SPRD_PWM)	+= sprd_pwm_bl.o
+obj-$(CONFIG_LCD_GENERIC)		+= gen_panel/
+

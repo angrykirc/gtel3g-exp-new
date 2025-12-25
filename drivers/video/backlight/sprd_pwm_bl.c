@@ -18,7 +18,7 @@
 #include <linux/fb.h>
 #include <linux/io.h>
 #include <linux/clk.h>
-#include <linux/earlysuspend.h>
+//#include <linux/earlysuspend.h>
 #include <linux/gpio.h>
 #include <linux/err.h>
 

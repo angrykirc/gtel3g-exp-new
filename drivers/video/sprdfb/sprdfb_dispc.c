@@ -883,7 +883,7 @@ static int32_t sprdfb_dispc_module_init(struct sprdfb_device *dev)
 #endif
 	pr_info("[LCD] %s, irq_num : %d\n", __func__, irq_num);
 
-	ret = request_irq(irq_num, dispc_isr, IRQF_DISABLED,
+	ret = request_irq(irq_num, dispc_isr, 0,
 			"DISPC", &dispc_ctx);
 	if (ret) {
 		pr_err("[LCD] %s, request irq failed (%d)\n", __func__, ret);
