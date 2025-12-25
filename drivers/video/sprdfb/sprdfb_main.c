@@ -577,21 +577,23 @@ static void ESD_work_func(struct work_struct *work)
 #endif
 
 #ifdef CONFIG_LCD_ESD_RECOVERY
-static int ESD_is_active(struct sprdfb_device *dev)
+static bool ESD_is_active(void *dev)
 {
-	return dev->enable;
+	return (bool)((struct sprdfb_device*)dev)->enable;
 }
 
 #ifdef CONFIG_LCD_ESD_RECOVERY_BY_TSP
-void ESD_recover(void)
+int ESD_recover(void *dev)
 {
 	dev_global->ctrl->ESD_reset(dev_global);
+    return 0;
 }
 EXPORT_SYMBOL(ESD_recover);
 #else
-void ESD_recover(struct sprdfb_device *dev)
+int ESD_recover(void *dev)
 {
-	dev->ctrl->ESD_reset(dev);
+	dev->ctrl->ESD_reset((struct sprdfb_device*) dev);
+    return 0;
 }
 
 static void esd_enable_func(struct work_struct *work)
