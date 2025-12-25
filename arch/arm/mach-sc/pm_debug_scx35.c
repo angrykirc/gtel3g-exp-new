@@ -17,7 +17,7 @@
 #include <linux/errno.h>
 #include <linux/io.h>
 #include <linux/delay.h>
-#include <linux/wakelock.h>
+//#include <linux/wakelock.h>
 #include <linux/kthread.h>
 #include <linux/debugfs.h>
 #include <mach/pm_debug.h>
@@ -462,7 +462,7 @@ void print_statisic(void)
 	}
 }
 #ifdef PM_PRINT_ENABLE
-static struct wake_lock messages_wakelock;
+static struct wakelock messages_wakelock;
 #endif
 
 #define PM_PRINT_ENABLE
