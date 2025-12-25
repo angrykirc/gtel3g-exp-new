@@ -99,3 +99,10 @@ endif
 
 obj-$(CONFIG_MMC_SDHCI_XENON)	+= sdhci-xenon-driver.o
 sdhci-xenon-driver-y		+= sdhci-xenon.o sdhci-xenon-phy.o
+
+ifeq ($(CONFIG_OF),y)
+obj-$(CONFIG_MMC_SDHCI_SPRD)    += sprd-sdhci-fix-of.o
+else
+obj-$(CONFIG_MMC_SDHCI_SPRD)    += sprd-sdhci-fix.o
+obj-$(CONFIG_MMC_SDHCI_SPRD)    += sprd-sdhci-regulator.o
+endif
